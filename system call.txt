@@ -14,11 +14,12 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 
+#define FIFO_NAME "/tmp/my_fifo"
 
+// Process-related system calls menu
 void process_menu() {
     int choice;
     pid_t pid;
-
 
     while (1) {
         printf("\n--- Process-related System Calls ---\n");
@@ -29,42 +30,41 @@ void process_menu() {
         printf("Enter your choice: ");
         scanf("%d", &choice);
 
-
         switch (choice) {
             case 1:
                 pid = fork();
-                if (pid == 0) {
-                    printf("Child process created. PID: %d\n", getpid());
-                    exit(0);
-                } else if (pid > 0) {
-                    printf("Parent process. PID: %d\n", getpid());
-                } else {
+                if (pid == -1) {
                     perror("fork failed");
+                } else if (pid == 0) {
+                    printf("Child process created. PID: %d\n", getpid());
+                    exit(0);  // Child process exits
+                } else {
+                    printf("Parent process. PID: %d, Child PID: %d\n", getpid(), pid);
+                    wait(NULL); // Parent waits for child to finish
+                    printf("Parent process resumes. Child process terminated.\n");
                 }
                 break;
-
 
             case 2:
                 printf("Exiting process with PID: %d\n", getpid());
-                exit(0);
+                exit(0);  // Exit the current process
                 break;
-
 
             case 3:
                 pid = fork();
-                if (pid == 0) {
-                    printf("Child process exiting. PID: %d\n", getpid());
-                    exit(0);
-                } else if (pid > 0) {
-                    wait(NULL);
-                    printf("Child process terminated. Parent PID: %d\n", getpid());
+                if (pid == -1) {
+                    perror("fork failed");
+                } else if (pid == 0) {
+                    printf("Child process. Exiting with PID: %d\n", getpid());
+                    exit(0);  // Child exits immediately
+                } else {
+                    wait(NULL); // Parent waits for child to finish
+                    printf("Parent process. Child process terminated with PID: %d\n", pid);
                 }
                 break;
 
-
             case 4:
-                return;
-
+                return;  // Exit from the process menu
 
             default:
                 printf("Invalid choice! Please try again.\n");
@@ -72,13 +72,12 @@ void process_menu() {
     }
 }
 
-
+// File-related system calls menu
 void file_menu() {
     int choice;
     int fd;
     char buffer[1024];
     ssize_t bytes;
-
 
     while (1) {
         printf("\n--- File-related System Calls ---\n");
@@ -93,7 +92,6 @@ void file_menu() {
         printf("Enter your choice: ");
         scanf("%d", &choice);
 
-
         switch (choice) {
             case 1:
                 fd = open("example.txt", O_CREAT | O_RDWR, 0666);
@@ -103,7 +101,6 @@ void file_menu() {
                     printf("File opened successfully. FD: %d\n", fd);
                 }
                 break;
-
 
             case 2:
                 if (fd != -1) {
@@ -117,7 +114,6 @@ void file_menu() {
                     printf("Please open a file first.\n");
                 }
                 break;
-
 
             case 3:
                 if (fd != -1) {
@@ -134,7 +130,6 @@ void file_menu() {
                 }
                 break;
 
-
             case 4:
                 if (fd != -1) {
                     close(fd);
@@ -144,7 +139,6 @@ void file_menu() {
                 }
                 break;
 
-
             case 5:
                 if (link("example.txt", "link_example.txt") == -1) {
                     perror("link failed");
@@ -153,7 +147,6 @@ void file_menu() {
                 }
                 break;
 
-
             case 6:
                 if (unlink("example.txt") == -1) {
                     perror("unlink failed");
@@ -161,7 +154,6 @@ void file_menu() {
                     printf("File unlinked successfully.\n");
                 }
                 break;
-
 
             case 7: {
                 struct stat fileStat;
@@ -175,10 +167,8 @@ void file_menu() {
                 break;
             }
 
-
             case 8:
-                return;
-
+                return;  // Exit to Main Menu
 
             default:
                 printf("Invalid choice! Please try again.\n");
@@ -186,13 +176,11 @@ void file_menu() {
     }
 }
 
-
+// Communication-related system calls menu
 void communication_menu() {
     int choice;
-    int pipefd[2];
     pid_t pid;
-    char buffer[1024];
-
+    int pipe_fd[2]; // Pipe file descriptors
 
     while (1) {
         printf("\n--- Communication System Calls ---\n");
@@ -202,39 +190,75 @@ void communication_menu() {
         printf("Enter your choice: ");
         scanf("%d", &choice);
 
-
         switch (choice) {
-            case 1:
-                if (pipe(pipefd) == -1) {
+            case 1: {
+                // Create a pipe
+                if (pipe(pipe_fd) == -1) {
                     perror("pipe failed");
+                    exit(1);
+                }
+
+                pid = fork();
+                if (pid == -1) {
+                    perror("fork failed");
+                    exit(1);
+                } else if (pid == 0) {
+                    // Child process - Write to pipe
+                    close(pipe_fd[0]); // Close the read end
+                    char message[] = "Hello from child process!";
+                    write(pipe_fd[1], message, sizeof(message));
+                    close(pipe_fd[1]); // Close the write end
+                    printf("Child process wrote to pipe.\n");
+                    exit(0);
                 } else {
-                    pid = fork();
-                    if (pid == 0) {
-                        close(pipefd[0]);
-                        write(pipefd[1], "Hello from child process!", 26);
-                        close(pipefd[1]);
-                        exit(0);
-                    } else if (pid > 0) {
-                        wait(NULL);
-                        close(pipefd[1]);
-                        read(pipefd[0], buffer, sizeof(buffer));
-                        printf("Parent received: %s\n", buffer);
-                        close(pipefd[0]);
-                    } else {
-                        perror("fork failed");
-                    }
+                    // Parent process - Read from pipe
+                    close(pipe_fd[1]); // Close the write end
+                    char buffer[1024];
+                    read(pipe_fd[0], buffer, sizeof(buffer));
+                    printf("Parent process received: %s\n", buffer);
+                    close(pipe_fd[0]); // Close the read end
+                    wait(NULL);  // Wait for child process to finish
                 }
                 break;
-
+            }
 
             case 2:
-                printf("FIFO not implemented in this example.\n");
+                // FIFO implementation (as per the original code)
+                if (mkfifo(FIFO_NAME, 0666) == -1) {
+                    perror("mkfifo failed");
+                }
+
+                pid = fork();
+                if (pid == 0) {
+                    // Child process - Write to FIFO
+                    int fd = open(FIFO_NAME, O_WRONLY);
+                    if (fd == -1) {
+                        perror("FIFO open failed in child");
+                        exit(1);
+                    }
+                    write(fd, "Hello from child process!", 26);
+                    close(fd);
+                    printf("Child process wrote to FIFO.\n");
+                    exit(0);
+                } else if (pid > 0) {
+                    // Parent process - Read from FIFO
+                    int fd = open(FIFO_NAME, O_RDONLY);
+                    if (fd == -1) {
+                        perror("FIFO open failed in parent");
+                        exit(1);
+                    }
+                    char buffer[1024];
+                    read(fd, buffer, sizeof(buffer));
+                    printf("Parent process received: %s\n", buffer);
+                    close(fd);
+                    wait(NULL);  // Wait for child process to finish
+                }
+                // Remove FIFO after communication
+                unlink(FIFO_NAME);
                 break;
 
-
             case 3:
-                return;
-
+                return;  // Exit to Main Menu
 
             default:
                 printf("Invalid choice! Please try again.\n");
@@ -242,10 +266,9 @@ void communication_menu() {
     }
 }
 
-
+// Information-related system calls menu
 void info_menu() {
     int choice;
-
 
     while (1) {
         printf("\n--- Information-related System Calls ---\n");
@@ -257,31 +280,25 @@ void info_menu() {
         printf("Enter your choice: ");
         scanf("%d", &choice);
 
-
         switch (choice) {
             case 1:
                 printf("Current Process ID: %d\n", getpid());
                 break;
 
-
             case 2:
                 printf("Parent Process ID: %d\n", getppid());
                 break;
-
 
             case 3:
                 printf("User ID: %d\n", getuid());
                 break;
 
-
             case 4:
                 printf("Group ID: %d\n", getgid());
                 break;
 
-
             case 5:
-                return;
-
+                return;  // Exit to Main Menu
 
             default:
                 printf("Invalid choice! Please try again.\n");
@@ -289,10 +306,9 @@ void info_menu() {
     }
 }
 
-
+// Main menu for navigation
 int main() {
     int choice;
-
 
     while (1) {
         printf("\n--- Main Menu ---\n");
@@ -304,37 +320,31 @@ int main() {
         printf("Enter your choice: ");
         scanf("%d", &choice);
 
-
         switch (choice) {
             case 1:
                 process_menu();
                 break;
 
-
             case 2:
                 file_menu();
                 break;
-
 
             case 3:
                 communication_menu();
                 break;
 
-
             case 4:
                 info_menu();
                 break;
 
-
             case 5:
+                printf("Exiting the program.\n");
                 exit(0);
-
 
             default:
                 printf("Invalid choice! Please try again.\n");
         }
     }
-
 
     return 0;
 }
