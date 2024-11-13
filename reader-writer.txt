@@ -119,101 +119,138 @@ int main() {
 Q. Readers-Writers Problem using Threads and Semaphore
 
 CODE - 
-#include <pthread.h>
 #include <stdio.h>
-#include <semaphore.h>
 #include <stdlib.h>
+#include <pthread.h>
+#include <semaphore.h>
+#include <unistd.h>
+#include <stdbool.h>
 
-sem_t resource;        // Semaphore for the shared resource
-sem_t read_count_mutex; // Semaphore to protect read_count
-int read_count = 0;    // Number of readers currently reading
-int shared_data = 0;   // Shared resource
+int shared_resource = 0;
+int readers_count = 0;
+bool writer_active = false;
+
+sem_t resource_sem;
+sem_t readers_count_sem;
+sem_t queue_sem;
 
 // Reader function
-void* reader(void* arg) {
-    int reader_id = *((int*)arg);
+void *reader(void *arg) {
+    long id = (long)arg;
+    while (1) {
+        sem_wait(&queue_sem);
+        sem_wait(&readers_count_sem);
+        readers_count++;
+        if (readers_count == 1) {
+            sem_wait(&resource_sem);
+        }
+        sem_post(&readers_count_sem);
+        sem_post(&queue_sem);
 
-    // Reader entry section
-    sem_wait(&read_count_mutex);
-    read_count++;
-    if (read_count == 1) {
-        printf("Reader %d is the first reader. Locking the resource.\n", reader_id);
-        sem_wait(&resource); // First reader locks the resource
+        printf("Reader %ld enters critical section\n", id);
+        printf("Reader %ld reads: %d\n", id, shared_resource);
+        sleep(1);
+        printf("Reader %ld exits critical section\n", id);
+        
+        sem_wait(&readers_count_sem);
+        readers_count--;
+        if (readers_count == 0) {
+            sem_post(&resource_sem);
+        }
+        sem_post(&readers_count_sem);
+
+        sleep(rand() % 3);
     }
-    sem_post(&read_count_mutex);
-
-    // Reading the shared resource
-    printf("Reader %d is reading the shared data: %d\n", reader_id, shared_data);
-
-    // Reader exit section
-    sem_wait(&read_count_mutex);
-    read_count--;
-    if (read_count == 0) {
-        printf("Reader %d is the last reader. Unlocking the resource.\n", reader_id);
-        sem_post(&resource); // Last reader unlocks the resource
-    }
-    sem_post(&read_count_mutex);
-
-    pthread_exit(0);
+    return NULL;
 }
 
 // Writer function
-void* writer(void* arg) {
-    int writer_id = *((int*)arg);
+void *writer(void *arg) {
+    long id = (long)arg;
+    while (1) {
+        sem_wait(&queue_sem);
+        sem_wait(&resource_sem);
+        writer_active = true;
+        sem_post(&queue_sem);
 
-    // Writer entry section
-    printf("Writer %d is trying to lock the resource.\n", writer_id);
-    sem_wait(&resource);
+        printf("Writer %ld enters critical section\n", id);
+        shared_resource++;
+        printf("Writer %ld writes: %d\n", id, shared_resource);
+        sleep(1);
+        printf("Writer %ld exits critical section\n", id);
 
-    // Writing to the shared resource
-    shared_data++;
-    printf("Writer %d is writing new data: %d\n", writer_id, shared_data);
+        writer_active = false;
+        sem_post(&resource_sem);
 
-    // Writer exit section
-    printf("Writer %d is unlocking the resource.\n", writer_id);
-    sem_post(&resource);
+        sleep(rand() % 3);
+    }
+    return NULL;
+}
 
-    pthread_exit(0);
+// Simulation function to generate input values for the number of readers and writers
+void simulate_input(int *num_readers, int *num_writers) {
+    *num_readers = rand() % 5 + 1;  // Simulate 1 to 5 readers
+    *num_writers = rand() % 3 + 1;  // Simulate 1 to 3 writers
+    printf("Simulated input: %d readers, %d writers\n", *num_readers, *num_writers);
 }
 
 int main() {
-    pthread_t readers[5], writers[3];
-    int reader_ids[5], writer_ids[3];
+    int num_readers, num_writers;
+
+    // Simulate input values for the number of readers and writers
+    simulate_input(&num_readers, &num_writers);
 
     // Initialize semaphores
-    sem_init(&resource, 0, 1);       // Binary semaphore for the shared resource
-    sem_init(&read_count_mutex, 0, 1); // Binary semaphore for read_count_mutex
+    sem_init(&resource_sem, 0, 1);
+    sem_init(&readers_count_sem, 0, 1);
+    sem_init(&queue_sem, 0, 1);
 
-    // Create 5 reader threads
-    for (int i = 0; i < 5; i++) {
-        reader_ids[i] = i + 1;
-        pthread_create(&readers[i], NULL, reader, &reader_ids[i]);
+    // Allocate memory for reader and writer threads
+    pthread_t *readers = (pthread_t*)malloc(num_readers * sizeof(pthread_t));
+    pthread_t *writers = (pthread_t*)malloc(num_writers * sizeof(pthread_t));
+    int *reader_ids = (int*)malloc(num_readers * sizeof(int));
+    int *writer_ids = (int*)malloc(num_writers * sizeof(int));
+
+    // Create reader threads
+    for (int i = 0; i < num_readers; i++) {
+        reader_ids[i] = i;
+        pthread_create(&readers[i], NULL, reader, (void*)(long)i); // Cast to long
     }
 
-    // Create 3 writer threads
-    for (int i = 0; i < 3; i++) {
-        writer_ids[i] = i + 1;
-        pthread_create(&writers[i], NULL, writer, &writer_ids[i]);
+    // Create writer threads
+    for (int i = 0; i < num_writers; i++) {
+        writer_ids[i] = i;
+        pthread_create(&writers[i], NULL, writer, (void*)(long)i); // Cast to long
     }
 
-    // Wait for all readers to finish
-    for (int i = 0; i < 5; i++) {
+    // Simulate for a fixed time (e.g., 30 seconds)
+    sleep(30);
+
+    // Cancel and join reader threads
+    for (int i = 0; i < num_readers; i++) {
+        pthread_cancel(readers[i]);
         pthread_join(readers[i], NULL);
     }
 
-    // Wait for all writers to finish
-    for (int i = 0; i < 3; i++) {
+    // Cancel and join writer threads
+    for (int i = 0; i < num_writers; i++) {
+        pthread_cancel(writers[i]);
         pthread_join(writers[i], NULL);
     }
 
     // Destroy semaphores
-    sem_destroy(&resource);
-    sem_destroy(&read_count_mutex);
+    sem_destroy(&resource_sem);
+    sem_destroy(&readers_count_sem);
+    sem_destroy(&queue_sem);
+
+    // Free allocated memory
+    free(readers);
+    free(writers);
+    free(reader_ids);
+    free(writer_ids);
 
     return 0;
 }
-
-
 
 
 
