@@ -1,0 +1,105 @@
+﻿23.⁠ ⁠Write a shell script to perform following operations on   student database.
+a) Insert b) Delete c)Update d)Search
+
+
+#!/bin/bash
+
+
+# Student database file
+DB_FILE="student_database.txt"
+
+
+# Menu options
+function show_menu() {
+    echo "Student Database Operations:"
+    echo "1. Insert a new student"
+    echo "2. Delete a student"
+    echo "3. Update a student's information"
+    echo "4. Search for a student"
+    echo "5. Exit"
+    echo -n "Enter your choice (1-5): "
+}
+
+
+# Insert a new student
+function insert_student() {
+    echo -n "Enter student name: "
+    read name
+    echo -n "Enter student ID: "
+    read id
+    echo -n "Enter student grade: "
+    read grade
+    echo "$name,$id,$grade" >> "$DB_FILE"
+    echo "Student added successfully!"
+}
+
+
+# Delete a student
+function delete_student() {
+    echo -n "Enter student ID to delete: "
+    read delete_id
+    student_info=$(grep ",$delete_id," "$DB_FILE")
+    if [ -z "$student_info" ]; then
+        echo "Student not found."
+        return
+    fi
+    sed -i "/$student_info/d" "$DB_FILE"
+    echo "Student deleted successfully!"
+}
+
+
+# Update a student's information
+function update_student() {
+    echo -n "Enter student ID to update: "
+    read update_id
+    student_info=$(grep ",$update_id," "$DB_FILE")
+    if [ -z "$student_info" ]; then
+        echo "Student not found."
+        return
+    fi
+    IFS=',' read -ra student_data <<< "$student_info"
+    echo "Current information:"
+    echo "Name: ${student_data[0]}"
+    echo "ID: ${student_data[1]}"
+    echo "Grade: ${student_data[2]}"
+    echo -n "Enter new name: "
+    read new_name
+    echo -n "Enter new ID: "
+    read new_id
+    echo -n "Enter new grade: "
+    read new_grade
+    sed -i "s/$student_info/$new_name,$new_id,$new_grade/" "$DB_FILE"
+    echo "Student information updated successfully!"
+}
+
+
+# Search for a student
+function search_student() {
+    echo -n "Enter student ID to search: "
+    read search_id
+    student_info=$(grep ",$search_id," "$DB_FILE")
+    if [ -z "$student_info" ]; then
+        echo "Student not found."
+    else
+        IFS=',' read -ra student_data <<< "$student_info"
+        echo "Name: ${student_data[0]}"
+        echo "ID: ${student_data[1]}"
+        echo "Grade: ${student_data[2]}"
+    fi
+}
+
+
+# Main loop
+while true; do
+    show_menu
+    read choice
+    case $choice in
+        1) insert_student ;;
+        2) delete_student ;;
+        3) update_student ;;
+        4) search_student ;;
+        5) echo "Exiting..." && break ;;
+        *) echo "Invalid choice. Try again." ;;
+    esac
+    echo
+done
