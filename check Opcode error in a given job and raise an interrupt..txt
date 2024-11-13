@@ -1,0 +1,86 @@
+﻿26.⁠ ⁠Write a program to check Opcode error in a given job and raise an interrupt.
+
+
+#include <iostream>
+#include <stdexcept>
+#include <unordered_map>
+
+
+// Enum to define supported opcodes
+enum class Opcode {
+    ADD,
+    SUB,
+    MUL,
+    DIV,
+    INVALID  // Represents an unsupported opcode
+};
+
+
+// Function to check for opcode error
+void checkOpcodeError(Opcode opcode) {
+    // Supported opcodes list
+    if (opcode != Opcode::ADD && opcode != Opcode::SUB &&
+        opcode != Opcode::MUL && opcode != Opcode::DIV) {
+        throw std::runtime_error("Opcode error: Unsupported opcode.");
+    }
+}
+
+
+// Function to simulate an interrupt
+void raiseInterrupt(const std::string& errorMessage) {
+    std::cout << "Interrupt raised: " << errorMessage << std::endl;
+}
+
+
+// Function to execute the job based on the opcode
+void executeJob(Opcode opcode, int operand1, int operand2) {
+    try {
+        // Check for opcode error
+        checkOpcodeError(opcode);
+
+
+        // Execute based on the opcode
+        int result = 0;
+        switch (opcode) {
+            case Opcode::ADD:
+                result = operand1 + operand2;
+                break;
+            case Opcode::SUB:
+                result = operand1 - operand2;
+                break;
+            case Opcode::MUL:
+                result = operand1 * operand2;
+                break;
+            case Opcode::DIV:
+                if (operand2 == 0) {
+                    raiseInterrupt("Error: Division by zero.");
+                    return;
+                }
+                result = operand1 / operand2;
+                break;
+            default:
+                raiseInterrupt("Error: Invalid operation.");
+                return;
+        }
+
+
+        std::cout << "Result: " << result << std::endl;
+    } catch (const std::runtime_error& e) {
+        // If an opcode error occurs, raise an interrupt
+        raiseInterrupt(e.what());
+    }
+}
+
+
+int main() {
+    Opcode opcode = Opcode::ADD;  // Change this to test different opcodes
+    int operand1 = 10;
+    int operand2 = 2;  // Change this to test different operands
+
+
+    // Execute the job with the given opcode and operands
+    executeJob(opcode, operand1, operand2);
+
+
+    return 0;
+}
