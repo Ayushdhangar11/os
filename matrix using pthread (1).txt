@@ -54,6 +54,34 @@ void* matrixMultiply(void* arg) {
     return NULL;
 }
 
+void* matrixAdd(void* arg) {
+    long threadId = (long)arg;
+    int startRow = (threadId * numRows) / numThreads;
+    int endRow = ((threadId + 1) * numRows) / numThreads;
+
+    for (int i = startRow; i < endRow; i++) {
+        for (int j = 0; j < numCols; j++) {
+            result[i][j] = matrixA[i][j] + matrixB[i][j];
+        }
+    }
+
+    return NULL;
+}
+
+void* matrixSubtract(void* arg) {
+    long threadId = (long)arg;
+    int startRow = (threadId * numRows) / numThreads;
+    int endRow = ((threadId + 1) * numRows) / numThreads;
+
+    for (int i = startRow; i < endRow; i++) {
+        for (int j = 0; j < numCols; j++) {
+            result[i][j] = matrixA[i][j] - matrixB[i][j];
+        }
+    }
+
+    return NULL;
+}
+
 int main() {
     readMatrices();
 
@@ -61,9 +89,29 @@ int main() {
     scanf("%d", &numThreads);
 
     pthread_t threads[numThreads];
+    int operation;
+
+    printf("Choose operation:\n1. Addition\n2. Subtraction\n3. Multiplication\nEnter choice: ");
+    scanf("%d", &operation);
+
+    void* (*operationFunction)(void*);
+    switch (operation) {
+        case 1:
+            operationFunction = matrixAdd;
+            break;
+        case 2:
+            operationFunction = matrixSubtract;
+            break;
+        case 3:
+            operationFunction = matrixMultiply;
+            break;
+        default:
+            printf("Invalid choice.\n");
+            return 1;
+    }
 
     for (long i = 0; i < numThreads; i++) {
-        pthread_create(&threads[i], NULL, matrixMultiply, (void*)i);
+        pthread_create(&threads[i], NULL, operationFunction, (void*)i);
     }
 
     for (int i = 0; i < numThreads; i++) {
