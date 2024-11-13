@@ -1,0 +1,304 @@
+EXPERIMENT - 6
+NAME - Ayush Sanjay Dhangar                                                   ROLL NO - 42
+CLASS - TY_IT-A                                                                        BATCH - 2
+DATE OF PERFORMANCE - 17/09/2024
+
+
+- Readers-Writers Problem using Threads and Mutex
+
+CODE - 
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+pthread_mutex_t resource_mutex = PTHREAD_MUTEX_INITIALIZER; // Mutex for the shared resource
+pthread_mutex_t read_count_mutex = PTHREAD_MUTEX_INITIALIZER; // Mutex to protect read_count
+
+int read_count = 0; // Number of readers currently reading
+int shared_data = 0; // Shared resource
+
+// Reader function
+void* reader(void* arg) {
+    int reader_id = *((int*)arg);
+
+    // Reader entry section
+    pthread_mutex_lock(&read_count_mutex);
+    read_count++;
+    if (read_count == 1) {
+        // First reader locks the resource
+        pthread_mutex_lock(&resource_mutex);
+    }
+    pthread_mutex_unlock(&read_count_mutex);
+
+    // Reading the shared resource
+    printf("Reader %d is reading the shared data: %d\n", reader_id, shared_data);
+
+    // Reader exit section
+    pthread_mutex_lock(&read_count_mutex);
+    read_count--;
+    if (read_count == 0) {
+        // Last reader unlocks the resource
+        pthread_mutex_unlock(&resource_mutex);
+    }
+    pthread_mutex_unlock(&read_count_mutex);
+
+    pthread_exit(0);
+}
+
+// Writer function
+void* writer(void* arg) {
+    int writer_id = *((int*)arg);
+
+    // Writer entry section
+    pthread_mutex_lock(&resource_mutex);
+
+    // Writing to the shared resource
+    shared_data++;
+    printf("Writer %d is writing new data: %d\n", writer_id, shared_data);
+
+    // Writer exit section
+    pthread_mutex_unlock(&resource_mutex);
+
+    pthread_exit(0);
+}
+
+int main() {
+    pthread_t readers[5], writers[3];
+    int reader_ids[5], writer_ids[3];
+
+    // Create 5 reader threads
+    for (int i = 0; i < 5; i++) {
+        reader_ids[i] = i + 1;
+        pthread_create(&readers[i], NULL, reader, &reader_ids[i]);
+    }
+
+    // Create 3 writer threads
+    for (int i = 0; i < 3; i++) {
+        writer_ids[i] = i + 1;
+        pthread_create(&writers[i], NULL, writer, &writer_ids[i]);
+    }
+
+    // Wait for all readers to finish
+    for (int i = 0; i < 5; i++) {
+        pthread_join(readers[i], NULL);
+    }
+
+    // Wait for all writers to finish
+    for (int i = 0; i < 3; i++) {
+        pthread_join(writers[i], NULL);
+    }
+
+    // Clean up
+    pthread_mutex_destroy(&resource_mutex);
+    pthread_mutex_destroy(&read_count_mutex);
+
+    return 0;
+}
+
+OUTPUT -
+
+
+
+-----------------------------------------------------------------------------------------
+
+Q. Readers-Writers Problem using Threads and Semaphore
+
+CODE - 
+#include <pthread.h>
+#include <stdio.h>
+#include <semaphore.h>
+#include <stdlib.h>
+
+sem_t resource;        // Semaphore for the shared resource
+sem_t read_count_mutex; // Semaphore to protect read_count
+int read_count = 0;    // Number of readers currently reading
+int shared_data = 0;   // Shared resource
+
+// Reader function
+void* reader(void* arg) {
+    int reader_id = *((int*)arg);
+
+    // Reader entry section
+    sem_wait(&read_count_mutex);
+    read_count++;
+    if (read_count == 1) {
+        printf("Reader %d is the first reader. Locking the resource.\n", reader_id);
+        sem_wait(&resource); // First reader locks the resource
+    }
+    sem_post(&read_count_mutex);
+
+    // Reading the shared resource
+    printf("Reader %d is reading the shared data: %d\n", reader_id, shared_data);
+
+    // Reader exit section
+    sem_wait(&read_count_mutex);
+    read_count--;
+    if (read_count == 0) {
+        printf("Reader %d is the last reader. Unlocking the resource.\n", reader_id);
+        sem_post(&resource); // Last reader unlocks the resource
+    }
+    sem_post(&read_count_mutex);
+
+    pthread_exit(0);
+}
+
+// Writer function
+void* writer(void* arg) {
+    int writer_id = *((int*)arg);
+
+    // Writer entry section
+    printf("Writer %d is trying to lock the resource.\n", writer_id);
+    sem_wait(&resource);
+
+    // Writing to the shared resource
+    shared_data++;
+    printf("Writer %d is writing new data: %d\n", writer_id, shared_data);
+
+    // Writer exit section
+    printf("Writer %d is unlocking the resource.\n", writer_id);
+    sem_post(&resource);
+
+    pthread_exit(0);
+}
+
+int main() {
+    pthread_t readers[5], writers[3];
+    int reader_ids[5], writer_ids[3];
+
+    // Initialize semaphores
+    sem_init(&resource, 0, 1);       // Binary semaphore for the shared resource
+    sem_init(&read_count_mutex, 0, 1); // Binary semaphore for read_count_mutex
+
+    // Create 5 reader threads
+    for (int i = 0; i < 5; i++) {
+        reader_ids[i] = i + 1;
+        pthread_create(&readers[i], NULL, reader, &reader_ids[i]);
+    }
+
+    // Create 3 writer threads
+    for (int i = 0; i < 3; i++) {
+        writer_ids[i] = i + 1;
+        pthread_create(&writers[i], NULL, writer, &writer_ids[i]);
+    }
+
+    // Wait for all readers to finish
+    for (int i = 0; i < 5; i++) {
+        pthread_join(readers[i], NULL);
+    }
+
+    // Wait for all writers to finish
+    for (int i = 0; i < 3; i++) {
+        pthread_join(writers[i], NULL);
+    }
+
+    // Destroy semaphores
+    sem_destroy(&resource);
+    sem_destroy(&read_count_mutex);
+
+    return 0;
+}
+
+
+#include <pthread.h>
+#include <stdio.h>
+#include <semaphore.h>
+#include <stdlib.h>
+
+sem_t resource;        // Semaphore for the shared resource
+sem_t read_count_mutex; // Semaphore to protect read_count
+int read_count = 0;    // Number of readers currently reading
+int shared_data = 0;   // Shared resource
+
+// Reader function
+void* reader(void* arg) {
+    int reader_id = *((int*)arg);
+
+    // Reader entry section
+    sem_wait(&read_count_mutex);
+    read_count++;
+    if (read_count == 1) {
+        printf("Reader %d is the first reader. Locking the resource.\n", reader_id);
+        sem_wait(&resource); // First reader locks the resource
+    }
+    sem_post(&read_count_mutex);
+
+    // Reading the shared resource
+    printf("Reader %d is reading the shared data: %d\n", reader_id, shared_data);
+
+    // Reader exit section
+    sem_wait(&read_count_mutex);
+    read_count--;
+    if (read_count == 0) {
+        printf("Reader %d is the last reader. Unlocking the resource.\n", reader_id);
+        sem_post(&resource); // Last reader unlocks the resource
+    }
+    sem_post(&read_count_mutex);
+
+    pthread_exit(0);
+}
+
+// Writer function
+void* writer(void* arg) {
+    int writer_id = *((int*)arg);
+
+    // Writer entry section
+    printf("Writer %d is trying to lock the resource.\n", writer_id);
+    sem_wait(&resource);
+
+    // Writing to the shared resource
+    shared_data++;
+    printf("Writer %d is writing new data: %d\n", writer_id, shared_data);
+
+    // Writer exit section
+    printf("Writer %d is unlocking the resource.\n", writer_id);
+    sem_post(&resource);
+
+    pthread_exit(0);
+}
+
+int main() {
+    pthread_t readers[5], writers[3];
+    int reader_ids[5], writer_ids[3];
+
+    // Initialize semaphores
+    sem_init(&resource, 0, 1);       // Binary semaphore for the shared resource
+    sem_init(&read_count_mutex, 0, 1); // Binary semaphore for read_count_mutex
+
+    // Create 5 reader threads
+    for (int i = 0; i < 5; i++) {
+        reader_ids[i] = i + 1;
+        pthread_create(&readers[i], NULL, reader, &reader_ids[i]);
+    }
+
+    // Create 3 writer threads
+    for (int i = 0; i < 3; i++) {
+        writer_ids[i] = i + 1;
+        pthread_create(&writers[i], NULL, writer, &writer_ids[i]);
+    }
+
+    // Wait for all readers to finish
+    for (int i = 0; i < 5; i++) {
+        pthread_join(readers[i], NULL);
+    }
+
+    // Wait for all writers to finish
+    for (int i = 0; i < 3; i++) {
+        pthread_join(writers[i], NULL);
+    }
+
+    // Destroy semaphores
+    sem_destroy(&resource);
+    sem_destroy(&read_count_mutex);
+
+    return 0;
+}
+
+
+
+OUTPUT - 
+ 
+
+
+
+
+
