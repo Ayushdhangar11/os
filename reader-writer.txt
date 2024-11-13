@@ -1,7 +1,3 @@
-EXPERIMENT - 6
-NAME - Ayush Sanjay Dhangar                                                   ROLL NO - 42
-CLASS - TY_IT-A                                                                        BATCH - 2
-DATE OF PERFORMANCE - 17/09/2024
 
 
 - Readers-Writers Problem using Threads and Mutex
