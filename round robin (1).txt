@@ -1,0 +1,124 @@
+﻿#include <iostream>
+#include <vector>
+#include <queue>
+
+
+using namespace std;
+
+
+struct Process {
+    int pid;            // Process ID
+    int arrivalTime;    // Arrival Time of process
+    int burstTime;      // Burst Time of process
+    int remainingTime;  // Remaining time for Round Robin calculation
+    int finishTime;     // Finish Time of process
+    int turnaroundTime; // Turnaround Time of process
+    int waitingTime;    // Waiting Time of process
+};
+
+
+// Function to calculate times using Round Robin Scheduling
+void calculateRoundRobin(vector<Process>& processes, int timeQuantum) {
+    int currentTime = 0;
+    queue<int> readyQueue;
+    int n = processes.size();
+    int completedProcesses = 0;
+
+
+    // Initialize remaining time for each process and add the first process to the queue
+    for (int i = 0; i < n; i++) {
+        processes[i].remainingTime = processes[i].burstTime;
+        if (processes[i].arrivalTime <= currentTime) {
+            readyQueue.push(i);
+        }
+    }
+
+
+    while (completedProcesses < n) {
+        if (readyQueue.empty()) {
+            // If no processes are ready, increment the current time
+            currentTime++;
+            for (int i = 0; i < n; i++) {
+                if (processes[i].arrivalTime == currentTime) {
+                    readyQueue.push(i);
+                }
+            }
+            continue;
+        }
+
+
+        // Get the process at the front of the queue
+        int currentProcessIndex = readyQueue.front();
+        readyQueue.pop();
+        Process& currentProcess = processes[currentProcessIndex];
+
+
+        // Execute the process for a time slice or until it finishes, whichever is shorter
+        int executionTime = min(timeQuantum, currentProcess.remainingTime);
+        currentProcess.remainingTime -= executionTime;
+        currentTime += executionTime;
+
+
+        // Add any newly arrived processes to the queue
+        for (int i = 0; i < n; i++) {
+            if (processes[i].arrivalTime <= currentTime && processes[i].remainingTime > 0 && i != currentProcessIndex) {
+                if (find(readyQueue.begin(), readyQueue.end(), i) == readyQueue.end()) {
+                    readyQueue.push(i);
+                }
+            }
+        }
+
+
+        // If the process has completed, calculate its finish time, turnaround time, and waiting time
+        if (currentProcess.remainingTime == 0) {
+            currentProcess.finishTime = currentTime;
+            currentProcess.turnaroundTime = currentProcess.finishTime - currentProcess.arrivalTime;
+            currentProcess.waitingTime = currentProcess.turnaroundTime - currentProcess.burstTime;
+            completedProcesses++;
+        } else {
+            // If the process has not finished, push it back into the queue
+            readyQueue.push(currentProcessIndex);
+        }
+    }
+}
+
+
+// Function to display results
+void displayResults(const vector<Process>& processes) {
+    cout << "PID\tArrival\tBurst\tFinish\tTurnaround\tWaiting\n";
+    for (const auto& process : processes) {
+        cout << process.pid << "\t"
+             << process.arrivalTime << "\t"
+             << process.burstTime << "\t"
+             << process.finishTime << "\t"
+             << process.turnaroundTime << "\t\t"
+             << process.waitingTime << endl;
+    }
+}
+
+
+int main() {
+    int n, timeQuantum;
+
+
+    cout << "Enter the number of processes: ";
+    cin >> n;
+    cout << "Enter the time quantum: ";
+    cin >> timeQuantum;
+
+
+    vector<Process> processes(n);
+    for (int i = 0; i < n; i++) {
+        processes[i].pid = i + 1;
+        cout << "Enter arrival time and burst time for Process " << processes[i].pid << ": ";
+        cin >> processes[i].arrivalTime >> processes[i].burstTime;
+    }
+
+
+    // Calculate times using Round Robin Scheduling
+    calculateRoundRobin(processes, timeQuantum);
+    displayResults(processes);
+
+
+    return 0;
+}
