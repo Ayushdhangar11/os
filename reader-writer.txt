@@ -3,95 +3,114 @@
 - Readers-Writers Problem using Threads and Mutex
 
 CODE - 
-#include <pthread.h>
+cpp
 #include <stdio.h>
-#include <stdlib.h>
+#include <stdbool.h>
 
-pthread_mutex_t resource_mutex = PTHREAD_MUTEX_INITIALIZER; // Mutex for the shared resource
-pthread_mutex_t read_count_mutex = PTHREAD_MUTEX_INITIALIZER; // Mutex to protect read_count
+struct semaphore {
+    int mutex;   // 1: available, 0: in use
+    int rcount;  // Number of active readers
+    int rwait;   // Number of waiting readers
+    bool wrt;    // Writer active flag
+};
 
-int read_count = 0; // Number of readers currently reading
-int shared_data = 0; // Shared resource
-
-// Reader function
-void* reader(void* arg) {
-    int reader_id = *((int*)arg);
-
-    // Reader entry section
-    pthread_mutex_lock(&read_count_mutex);
-    read_count++;
-    if (read_count == 1) {
-        // First reader locks the resource
-        pthread_mutex_lock(&resource_mutex);
+// Function to add a reader
+void addR(struct semaphore *s) {
+    if (s->mutex == 0 && s->rcount == 0) {
+        printf("\nSorry, File open in Write mode.\nNew Reader added to queue.\n");
+        s->rwait++;
+    } else {
+        printf("\nReader Process added.\n");
+        s->rcount++;
+        s->mutex--;
     }
-    pthread_mutex_unlock(&read_count_mutex);
-
-    // Reading the shared resource
-    printf("Reader %d is reading the shared data: %d\n", reader_id, shared_data);
-
-    // Reader exit section
-    pthread_mutex_lock(&read_count_mutex);
-    read_count--;
-    if (read_count == 0) {
-        // Last reader unlocks the resource
-        pthread_mutex_unlock(&resource_mutex);
-    }
-    pthread_mutex_unlock(&read_count_mutex);
-
-    pthread_exit(0);
+    return;
 }
 
-// Writer function
-void* writer(void* arg) {
-    int writer_id = *((int*)arg);
+// Function to add a writer
+void addW(struct semaphore *s) {
+    if (s->mutex == 1) {
+        s->mutex--;
+        s->wrt = 1;
+        printf("\nWriter Process added.\n");
+    } else if (s->wrt)
+        printf("\nSorry, Writer already operational.\n");
+    else
+        printf("\nSorry, File open in Read mode.\n");
+    return;
+}
 
-    // Writer entry section
-    pthread_mutex_lock(&resource_mutex);
+// Function to remove a reader
+void remR(struct semaphore *s) {
+    if (s->rcount == 0)
+        printf("\nNo readers to remove.\n");
+    else {
+        printf("\nReader Removed.\n");
+        s->rcount--;
+        s->mutex++;
+    }
+    return;
+}
 
-    // Writing to the shared resource
-    shared_data++;
-    printf("Writer %d is writing new data: %d\n", writer_id, shared_data);
+// Function to remove a writer
+void remW(struct semaphore *s) {
+    if (s->wrt == 0)
+        printf("\nNo Writer to Remove\n");
+    else {
+        printf("\nWriter Removed\n");
+        s->mutex++;
+        s->wrt = 0;
+        if (s->rwait != 0) {
+            s->mutex -= s->rwait;  // Allow waiting readers to proceed
+            s->rcount = s->rwait;   // Set active readers count to waiting
+            s->rwait = 0;           // Reset waiting readers count
+            printf("%d waiting Readers Added.\n", s->rcount);
+        }
+    }
+}
 
-    // Writer exit section
-    pthread_mutex_unlock(&resource_mutex);
+// Function to simulate various cases
+void simulate(struct semaphore *s) {
+    // Simulating adding 2 readers
+    addR(s);  // Reader 1
+    addR(s);  // Reader 2
 
-    pthread_exit(0);
+    // Simulating adding a writer
+    addW(s);  // Writer 1
+
+    // Simulating removing 1 reader
+    remR(s);  // Reader 1
+
+    // Simulating adding 1 more reader
+    addR(s);  // Reader 3
+
+    // Simulating removing the writer
+    remW(s);  // Writer 1
+
+    // Simulating adding another reader and writer
+    addR(s);  // Reader 4
+    addW(s);  // Writer 2
+
+    // Simulating removing all readers
+    remR(s);  // Reader 2
+    remR(s);  // Reader 3
+    remR(s);  // Reader 4
 }
 
 int main() {
-    pthread_t readers[5], writers[3];
-    int reader_ids[5], writer_ids[3];
+    struct semaphore S1 = {1, 0, 0, false}; // Initialize semaphore
+    
+    // Simulate predefined cases
+    simulate(&S1);
 
-    // Create 5 reader threads
-    for (int i = 0; i < 5; i++) {
-        reader_ids[i] = i + 1;
-        pthread_create(&readers[i], NULL, reader, &reader_ids[i]);
-    }
-
-    // Create 3 writer threads
-    for (int i = 0; i < 3; i++) {
-        writer_ids[i] = i + 1;
-        pthread_create(&writers[i], NULL, writer, &writer_ids[i]);
-    }
-
-    // Wait for all readers to finish
-    for (int i = 0; i < 5; i++) {
-        pthread_join(readers[i], NULL);
-    }
-
-    // Wait for all writers to finish
-    for (int i = 0; i < 3; i++) {
-        pthread_join(writers[i], NULL);
-    }
-
-    // Clean up
-    pthread_mutex_destroy(&resource_mutex);
-    pthread_mutex_destroy(&read_count_mutex);
-
+    // Final state of the semaphore
+    printf("\nFinal State ->\n\tMutex\t\t:\t%d\n\tActive Readers\t:\t%d\n\tWaiting Readers\t:\t%d\n\tWriter Active\t:\t%s\n\n",
+           S1.mutex, S1.rcount, S1.rwait, (S1.wrt ? "YES" : "NO"));
+    
     return 0;
 }
 
-OUTPUT -
+
 
 
 
