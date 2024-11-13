@@ -1,83 +1,73 @@
-﻿19.⁠ ⁠Write a program to simulate SSTF disk scheduling. Calculate total seek time.Print accepted input and output in tabular format
-
-
 #include <iostream>
 #include <vector>
-#include <algorithm>
-#include <iomanip>
+#include <cstdlib>
+#include <cmath>
+#include <ctime>
 
+using namespace std;
 
-std::tuple<int, std::vector<int>, std::vector<std::vector<int>>> sstfDiskScheduling(const std::vector<int>& requests, int headPosition) {
-    std::vector<int> sortedRequests = requests;
-    std::vector<int> acceptedRequests;
-    std::vector<std::vector<int>> output;
-    int totalSeekTime = 0;
+void simulateInput(int &n, vector<int> &RQ, int &initial) {
+    // Seed random number generator
+    srand(static_cast<unsigned int>(time(0)));
 
+    // Generate a random number of requests (between 5 and 10)
+    n = rand() % 6 + 5;
+    cout << "Simulating " << n << " requests:\n";
 
-    // Sort the requests in ascending order
-    std::sort(sortedRequests.begin(), sortedRequests.end());
-
-
-    while (!sortedRequests.empty()) {
-        // Find the closest request to the current head position
-        auto it = std::lower_bound(sortedRequests.begin(), sortedRequests.end(), headPosition);
-        if (it == sortedRequests.begin()) {
-            // Closest request is the first one in the sorted list
-            totalSeekTime += std::abs(*it - headPosition);
-            acceptedRequests.push_back(*it);
-            output.push_back({headPosition, *it, std::abs(*it - headPosition)});
-            headPosition = *it;
-            sortedRequests.erase(it);
-        } else {
-            // Closest request is the previous one in the sorted list
-            --it;
-            totalSeekTime += std::abs(*it - headPosition);
-            acceptedRequests.push_back(*it);
-            output.push_back({headPosition, *it, std::abs(*it - headPosition)});
-            headPosition = *it;
-            sortedRequests.erase(it);
-        }
+    // Generate random request sequence (between 0 and 199)
+    RQ.clear();
+    for (int i = 0; i < n; i++) {
+        RQ.push_back(rand() % 200);  // Random number between 0 and 199
     }
 
-
-    return {totalSeekTime, acceptedRequests, output};
+    // Generate a random initial head position (between 0 and 199)
+    initial = rand() % 200;
+    cout << "Generated request sequence: ";
+    for (int req : RQ) {
+        cout << req << " ";
+    }
+    cout << "\nGenerated initial head position: " << initial << endl;
 }
 
-
 int main() {
-    std::vector<int> requests = {176, 79, 34, 60, 92, 11, 41, 114};
-    int headPosition = 50;
+    int n, initial, TotalHeadMoment = 0, count = 0;
+    vector<int> RQ;
 
+    // Simulate input values
+    simulateInput(n, RQ, initial);
 
-    int totalSeekTime;
-    std::vector<int> acceptedRequests;
-    std::vector<std::vector<int>> output;
-    std::tie(totalSeekTime, acceptedRequests, output) = sstfDiskScheduling(requests, headPosition);
-
-
-    std::cout << "Accepted Requests: ";
-    for (int request : acceptedRequests) {
-        std::cout << request << " ";
+    // Display accepted input
+    cout << "\nAccepted Input:" << endl;
+    cout << "--------------------------" << endl;
+    cout << "Request Sequence: ";
+    for (int req : RQ) {
+        cout << req << " ";
     }
-    std::cout << std::endl;
-    std::cout << "Total Seek Time: " << totalSeekTime << std::endl << std::endl;
+    cout << "\nInitial Head Position: " << initial << endl;
 
+    // Process disk scheduling using Shortest Seek First (SSF)
+    while (count != n) {
+        int min = 1000, d, index;
 
-    std::cout << "Input:" << std::endl;
-    std::cout << "Head Position | Requests" << std::endl;
-    std::cout << headPosition << " | ";
-    for (int request : requests) {
-        std::cout << request << ", ";
+        // Find the closest request to the current head position
+        for (int i = 0; i < n; i++) {
+            d = abs(RQ[i] - initial);
+            if (min > d) {
+                min = d;
+                index = i;
+            }
+        }
+
+        // Add the seek time to total head movement
+        TotalHeadMoment += min;
+        initial = RQ[index];
+
+        // Mark this request as processed by setting it to a high value
+        RQ[index] = 1000;
+        count++;
     }
-    std::cout << std::endl << std::endl;
 
-
-    std::cout << "Output:" << std::endl;
-    std::cout << "Head Position | Disk Position | Seek Time" << std::endl;
-    for (const auto& row : output) {
-        std::cout << row[0] << " | " << row[1] << " | " << row[2] << std::endl;
-    }
-
+    cout << "\nTotal head movement is " << TotalHeadMoment << endl;
 
     return 0;
 }
