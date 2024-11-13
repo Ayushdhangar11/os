@@ -1,8 +1,4 @@
-﻿Experiment Number: 4
-NAME: Ayush Sanjay Dhangar                                        ROLLNO:42 
-CLASS: TY_IT-A                                                         BATCH: 2
-DATE OF PERFORMANCE: 21/08/2024
-___________________________________________________________________________
+
 1. Design menu driven application demonstrating use of different system calls.
 1. process related system call:fork,exit, wait,
 2) file realted system call: open,read,write,close,link,unlink,stat
