@@ -1,0 +1,105 @@
+﻿20.⁠ ⁠Write a program to simulate SCAN disk scheduling. Calculate total seek time.Print accepted input and output in tabular format
+
+
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <iomanip>
+
+
+std::tuple<int, std::vector<int>, std::vector<std::vector<int>>> scanDiskScheduling(const std::vector<int>& requests, int headPosition, const std::string& direction) {
+    std::vector<int> sortedRequests = requests;
+    std::vector<int> acceptedRequests;
+    std::vector<std::vector<int>> output;
+    int totalSeekTime = 0;
+
+
+    // Sort the requests in ascending order
+    std::sort(sortedRequests.begin(), sortedRequests.end());
+
+
+    if (direction == "right") {
+        // Move the disk head from the current position to the highest position
+        for (auto it = sortedRequests.begin(); it != sortedRequests.end(); ++it) {
+            if (*it >= headPosition) {
+                totalSeekTime += *it - headPosition;
+                acceptedRequests.push_back(*it);
+                output.push_back({headPosition, *it, *it - headPosition});
+                headPosition = *it;
+                break;
+            }
+        }
+
+
+        // Move the disk head from the highest position to the lowest position
+        for (auto it = std::next(std::find(sortedRequests.begin(), sortedRequests.end(), headPosition)); it != sortedRequests.end(); ++it) {
+            totalSeekTime += *it - headPosition;
+            acceptedRequests.push_back(*it);
+            output.push_back({headPosition, *it, *it - headPosition});
+            headPosition = *it;
+        }
+    } else {
+        // Move the disk head from the current position to the lowest position
+        for (auto it = sortedRequests.rbegin(); it != sortedRequests.rend(); ++it) {
+            if (*it <= headPosition) {
+                totalSeekTime += headPosition - *it;
+                acceptedRequests.push_back(*it);
+                output.push_back({headPosition, *it, headPosition - *it});
+                headPosition = *it;
+                break;
+            }
+        }
+
+
+        // Move the disk head from the lowest position to the highest position
+        for (auto it = std::next(std::find(sortedRequests.rbegin(), sortedRequests.rend(), headPosition)); it != sortedRequests.rend(); ++it) {
+            totalSeekTime += headPosition - *it;
+            acceptedRequests.push_back(*it);
+            output.push_back({headPosition, *it, headPosition - *it});
+            headPosition = *it;
+        }
+    }
+
+
+    return {totalSeekTime, acceptedRequests, output};
+}
+
+
+int main() {
+    std::vector<int> requests = {176, 79, 34, 60, 92, 11, 41, 114};
+    int headPosition = 50;
+    std::string direction = "right";
+
+
+    int totalSeekTime;
+    std::vector<int> acceptedRequests;
+    std::vector<std::vector<int>> output;
+    std::tie(totalSeekTime, acceptedRequests, output) = scanDiskScheduling(requests, headPosition, direction);
+
+
+    std::cout << "Accepted Requests: ";
+    for (int request : acceptedRequests) {
+        std::cout << request << " ";
+    }
+    std::cout << std::endl;
+    std::cout << "Total Seek Time: " << totalSeekTime << std::endl << std::endl;
+
+
+    std::cout << "Input:" << std::endl;
+    std::cout << "Head Position | Requests" << std::endl;
+    std::cout << headPosition << " | ";
+    for (int request : requests) {
+        std::cout << request << ", ";
+    }
+    std::cout << std::endl << std::endl;
+
+
+    std::cout << "Output:" << std::endl;
+    std::cout << "Head Position | Disk Position | Seek Time" << std::endl;
+    for (const auto& row : output) {
+        std::cout << row[0] << " | " << row[1] << " | " << row[2] << std::endl;
+    }
+
+
+    return 0;
+}
