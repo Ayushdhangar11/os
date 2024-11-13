@@ -1,0 +1,52 @@
+
+
+#include <iostream>
+#include <vector>
+using namespace std;
+
+#define MAX_FRAMES 10
+
+int main() {
+    int frames = 3; // Hardcoded number of frames
+    int n = 12; // Hardcoded length of reference string
+    int referenceString[] = {7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 3}; // Hardcoded reference string
+
+    int pageFaults = 0;
+    int frameQueue[MAX_FRAMES];
+    for (int i = 0; i < frames; i++) {
+        frameQueue[i] = -1;  // Initialize frameQueue to -1 (empty)
+    }
+
+    int front = 0, rear = 0;
+
+    cout << "\nPage Reference\tPage Faults\n";
+
+    for (int i = 0; i < n; i++) {
+        int page = referenceString[i];
+        int pageFound = 0;
+
+        // Check if the page is already in frames
+        for (int j = 0; j < frames; j++) {
+            if (frameQueue[j] == page) {
+                pageFound = 1;
+                break;
+            }
+        }
+
+        if (!pageFound) {
+            // Page Fault
+            pageFaults++;
+            if (rear - front == frames) {
+                front = (front + 1) % frames;
+            }
+            frameQueue[rear] = page;
+            rear = (rear + 1) % frames;
+        }
+
+        cout << page << "\t\t" << pageFaults << endl;
+    }
+
+    cout << "\nTotal Page Faults: " << pageFaults << endl;
+
+    return 0;
+}

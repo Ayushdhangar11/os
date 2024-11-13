@@ -1,0 +1,77 @@
+
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+int main() {
+    int i, j, f, pf = 0;
+    // Hardcoded reference string and frame size
+    vector<int> rs = {7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 3};
+    int n = rs.size();  // Length of the reference string
+    f = 3;  // Number of frames
+
+    // Frames and age arrays
+    vector<int> frame(f, -1);
+    vector<int> age(f, 0);
+
+    cout << "\nThe Page Replacement Process is -- \n";
+    for (i = 0; i < n; i++) {
+        cout << rs[i] << "\t";
+        int found = 0;
+
+        // Check if the page is already in one of the frames
+        for (j = 0; j < f; j++) {
+            if (frame[j] == rs[i]) {
+                age[j] = 0;  // Reset the age for the used frame
+                found = 1;  // No page fault
+                break;
+            }
+        }
+
+        if (!found) {  // Page fault
+            int flag = 0;  // Flag to check if there's an empty frame
+            for (j = 0; j < f; j++) {
+                if (frame[j] == -1) {
+                    frame[j] = rs[i];
+                    age[j] = 0;
+                    flag = 1;  // Empty frame found
+                    break;
+                }
+            }
+
+            if (flag == 0) {  // No empty frame available
+                // Perform LRU replacement
+                int max_age = age[0];
+                int max_age_index = 0;
+                for (j = 1; j < f; j++) {
+                    if (age[j] > max_age) {
+                        max_age = age[j];
+                        max_age_index = j;
+                    }
+                }
+                frame[max_age_index] = rs[i];
+                age[max_age_index] = 0;
+            }
+
+            pf++;  // Increment page fault count
+        }
+
+        // Display the frames and the current page fault number
+        for (j = 0; j < f; j++) {
+            cout << "\t" << frame[j];
+            age[j]++;  // Increment the age of each frame
+        }
+
+        if (!found) {
+            cout << "\t\t\tPF No. " << pf;
+        }
+
+        cout << "\n";
+    }
+
+    cout << "\nThe number of Page Faults using LRU are " << pf << endl;
+
+    return 0;
+}

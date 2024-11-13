@@ -1,0 +1,105 @@
+
+
+#include <iostream>
+using namespace std;
+
+int main()
+{
+    int i, j, k, n = 12, f = 4, max, pf = 0;
+    int rs[25] = {7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 3}; // Hardcoded reference string
+    int frame[10], next[25];
+
+    // Hardcoded number of frames
+    // n = length of reference string
+    // f = number of frames
+
+    for (i = 0; i < f; i++)
+    {
+        frame[i] = -1;
+    }
+
+    for (i = 0; i < n; i++)
+    {
+        int flag = 0;
+
+        // Check if page is already in frame
+        for (j = 0; j < f; j++)
+        {
+            if (frame[j] == rs[i])
+            {
+                flag = 1;
+                break;
+            }
+        }
+
+        // If not in frame,
+        if (flag == 0)
+        {
+
+            // To check if empty frame is available-
+            int flag1 = 0; // Initialize to -1, indicating no empty frame found
+            for (j = 0; j < f; j++)
+            {
+                if (frame[j] == -1)
+                {
+                    frame[j] = rs[i];
+                    flag1 = 1;
+                    pf++;
+                    break; // Found an empty frame, exit the loop
+                }
+            }
+
+            // If empty frame not found, perform optimal replacement i.e find the page with the furthest future reference
+            if (flag1 == 0)
+            {
+                max = -1;
+                int index = 0;
+                for (j = 0; j < f; j++)
+                {
+                    int found = 0;
+                    for (k = i + 1; k < n; k++)
+                    {
+                        if (frame[j] == rs[k])
+                        {
+                            found = 1;
+                            break;
+                        }
+                    }
+                    if (found == 0)
+                    {
+                        next[j] = n;
+                    }
+                    else
+                    {
+                        next[j] = k;
+                    }
+                    if (next[j] > max)
+                    {
+                        max = next[j];
+                        index = j;
+                    }
+                }
+                frame[index] = rs[i];
+                pf++;
+            }
+        }
+
+        // Print current page and frame
+        cout << rs[i] << "\t";
+        for (j = 0; j < f; j++)
+        {
+            cout << frame[j] << "\t";
+        }
+
+        // If there was a page fault, print the page fault number
+        if (flag == 0)
+        {
+            cout << "PF No. " << pf;
+        }
+        cout << endl;
+    }
+
+    cout << "\nThe number of page faults using Optimal algorithm are " << pf << endl;
+
+    return 0;
+}
