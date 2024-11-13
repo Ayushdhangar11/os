@@ -1,0 +1,44 @@
+﻿27. /* Write a program to check Operand error in a given job and raise an interrupt. */
+
+
+#include <iostream>
+#include <stdexcept>
+
+
+// Function to simulate checking an operand in a job
+void checkOperandError(int operand) {
+    // Check if operand is zero (simulating an operand error)
+    if (operand == 0) {
+        throw std::runtime_error("Operand error: Division by zero or invalid operand.");
+    }
+}
+
+
+// Function to simulate an interrupt
+void raiseInterrupt(const std::string& errorMessage) {
+    std::cout << "Interrupt raised: " << errorMessage << std::endl;
+}
+
+
+int main() {
+    int operand = 0;  // Operand for the job (can be changed to test)
+
+
+    try {
+        // Check for operand error
+        checkOperandError(operand);
+
+
+        // If no error, proceed with the job (for demonstration, divide by operand)
+        int result = 10 / operand;  // This line will not be reached if an error occurs
+        std::cout << "Result: " << result << std::endl;
+
+
+    } catch (const std::runtime_error& e) {
+        // If an error occurs, raise an interrupt
+        raiseInterrupt(e.what());
+    }
+
+
+    return 0;
+}
