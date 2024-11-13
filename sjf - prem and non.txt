@@ -4,10 +4,9 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
-
+#include <climits>
 
 using namespace std;
-
 
 struct Process {
     int pid;             // Process ID
@@ -19,18 +18,15 @@ struct Process {
     bool completed = false; // Status to mark completion
 };
 
-
 // Function to calculate times using Non-Preemptive SJF
 void calculateNonPreemptiveSJF(vector<Process>& processes) {
     int currentTime = 0;
     int completedProcesses = 0;
     int n = processes.size();
 
-
     while (completedProcesses < n) {
         int minBurstIndex = -1;
         int minBurstTime = INT_MAX;
-
 
         // Find the process with the shortest burst time among those that have arrived
         for (int i = 0; i < n; i++) {
@@ -39,7 +35,6 @@ void calculateNonPreemptiveSJF(vector<Process>& processes) {
                 minBurstTime = processes[i].burstTime;
             }
         }
-
 
         if (minBurstIndex != -1) {
             // Update times for the selected process
@@ -55,7 +50,6 @@ void calculateNonPreemptiveSJF(vector<Process>& processes) {
     }
 }
 
-
 void displayResults(const vector<Process>& processes) {
     cout << "PID\tArrival\tBurst\tFinish\tTurnaround\tWaiting\n";
     for (const auto& process : processes) {
@@ -68,32 +62,26 @@ void displayResults(const vector<Process>& processes) {
     }
 }
 
-
 int main() {
-    int n;
-    cout << "Enter the number of processes: ";
-    cin >> n;
-
-
-    vector<Process> processes(n);
-    for (int i = 0; i < n; i++) {
-        processes[i].pid = i + 1;
-        cout << "Enter Arrival Time and Burst Time for Process " << processes[i].pid << ": ";
-        cin >> processes[i].arrivalTime >> processes[i].burstTime;
-    }
-
+    // Hardcoded input for processes
+    int n = 4;
+    vector<Process> processes = {
+        {1, 0, 6, 0, 0, 0, false},   // Process 1: Arrival Time = 0, Burst Time = 6
+        {2, 1, 8, 0, 0, 0, false},   // Process 2: Arrival Time = 1, Burst Time = 8
+        {3, 2, 7, 0, 0, 0, false},   // Process 3: Arrival Time = 2, Burst Time = 7
+        {4, 3, 3, 0, 0, 0, false}    // Process 4: Arrival Time = 3, Burst Time = 3
+    };
 
     // Calculate times for Non-Preemptive SJF
     calculateNonPreemptiveSJF(processes);
-
 
     // Display results
     cout << "\nNon-Preemptive SJF Results:\n";
     displayResults(processes);
 
-
     return 0;
 }
+
 
 
 
@@ -106,9 +94,7 @@ Prem -
 #include <algorithm>
 #include <climits>
 
-
 using namespace std;
-
 
 struct Process {
     int pid;             // Process ID
@@ -120,6 +106,18 @@ struct Process {
     int waitingTime;     // Waiting Time of process
 };
 
+// Function to display the results
+void displayResults(const vector<Process>& processes) {
+    cout << "PID\tArrival Time\tBurst Time\tFinish Time\tTurnaround Time\tWaiting Time" << endl;
+    for (const auto& process : processes) {
+        cout << process.pid << "\t"
+             << process.arrivalTime << "\t\t"
+             << process.burstTime << "\t\t"
+             << process.finishTime << "\t\t"
+             << process.turnaroundTime << "\t\t"
+             << process.waitingTime << endl;
+    }
+}
 
 // Function to calculate times using Preemptive SJF (SRTF)
 void calculatePreemptiveSJF(vector<Process>& processes) {
@@ -127,16 +125,13 @@ void calculatePreemptiveSJF(vector<Process>& processes) {
     int completedProcesses = 0;
     int n = processes.size();
 
-
     for (auto& process : processes) {
         process.remainingTime = process.burstTime;
     }
 
-
     while (completedProcesses < n) {
         int minRemainingIndex = -1;
         int minRemainingTime = INT_MAX;
-
 
         // Find the process with the shortest remaining time among those that have arrived
         for (int i = 0; i < n; i++) {
@@ -146,11 +141,9 @@ void calculatePreemptiveSJF(vector<Process>& processes) {
             }
         }
 
-
         if (minRemainingIndex != -1) {
             processes[minRemainingIndex].remainingTime--;
             currentTime++;
-
 
             // If process is completed
             if (processes[minRemainingIndex].remainingTime == 0) {
@@ -165,29 +158,22 @@ void calculatePreemptiveSJF(vector<Process>& processes) {
     }
 }
 
-
 int main() {
-    int n;
-    cout << "Enter the number of processes: ";
-    cin >> n;
-
-
-    vector<Process> processes(n);
-    for (int i = 0; i < n; i++) {
-        processes[i].pid = i + 1;
-        cout << "Enter Arrival Time and Burst Time for Process " << processes[i].pid << ": ";
-        cin >> processes[i].arrivalTime >> processes[i].burstTime;
-    }
-
+    // Hardcoded input for processes
+    int n = 4;
+    vector<Process> processes = {
+        {1, 0, 8, 0, 0, 0, 0},   // Process 1: Arrival Time = 0, Burst Time = 8
+        {2, 1, 4, 0, 0, 0, 0},   // Process 2: Arrival Time = 1, Burst Time = 4
+        {3, 2, 9, 0, 0, 0, 0},   // Process 3: Arrival Time = 2, Burst Time = 9
+        {4, 3, 5, 0, 0, 0, 0}    // Process 4: Arrival Time = 3, Burst Time = 5
+    };
 
     // Calculate times for Preemptive SJF
     calculatePreemptiveSJF(processes);
 
-
     // Display results
     cout << "\nPreemptive SJF Results:\n";
     displayResults(processes);
-
 
     return 0;
 }
