@@ -2,6 +2,8 @@
 #include <vector>
 #include <cmath>
 #include <algorithm>
+#include <cstdlib>
+#include <ctime>
 
 int max = 199, min = 0;
 
@@ -41,25 +43,44 @@ void Scan(std::vector<int>& arr, int head, int n)
     std::cout << "\nScan Seek time= " << seek;
 }
 
-int main()
+void simulateInput(int& n, std::vector<int>& arr, int& head)
 {
-    int n;
-    std::cout << "Enter no. of requests: ";
-    std::cin >> n;
+    // Seed random number generator
+    std::srand(static_cast<unsigned int>(std::time(0)));
 
-    std::vector<int> arr(n);
+    // Random number of requests between 5 and 10
+    n = std::rand() % 6 + 5;  
+    std::cout << "Simulating " << n << " requests:\n";
 
-    std::cout << "\nEnter requests: \n";
+    // Generate random disk requests between min and max
+    arr.clear();
     for (int i = 0; i < n; i++)
     {
-        std::cin >> arr[i];
+        arr.push_back(std::rand() % (max + 1));  // Generate random number between 0 and 199
     }
 
-    int head;
-    std::cout << "\nEnter head: ";
-    std::cin >> head;
+    // Generate a random head position
+    head = std::rand() % (max + 1);  
+    std::cout << "Generated requests: ";
+    for (int i = 0; i < n; i++)
+    {
+        std::cout << arr[i] << " ";
+    }
+    std::cout << "\nGenerated head: " << head << "\n";
+}
 
+int main()
+{
+    int n, head;
+    std::vector<int> arr;
+
+    // Simulate the input values
+    simulateInput(n, arr, head);
+
+    // Add the head position to the request list
     arr.push_back(head);
+
+    // Call the Scan function
     Scan(arr, head, n + 1);
 
     return 0;
