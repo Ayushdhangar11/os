@@ -1,0 +1,51 @@
+﻿25.⁠ ⁠Write a program to load ALP program from input file to main memory.
+
+
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
+
+
+std::vector<int> loadALPFromFile(const std::string& inputFile, int memorySize = 1024) {
+    std::vector<int> memory(memorySize, 0);
+
+
+    std::ifstream file(inputFile);
+    if (!file.is_open()) {
+        std::cerr << "Error: Input file '" << inputFile << "' not found." << std::endl;
+        return memory;
+    }
+
+
+    std::string line;
+    int lineNum = 0;
+    while (std::getline(file, line)) {
+        try {
+            memory[lineNum] = std::stoi(line);
+            lineNum++;
+        } catch (const std::invalid_argument& e) {
+            std::cerr << "Error: Invalid value in input file at line " << lineNum + 1 << "." << std::endl;
+            return memory;
+        }
+    }
+
+
+    file.close();
+    return memory;
+}
+
+
+int main() {
+    std::vector<int> mainMemory = loadALPFromFile("input_alp.txt");
+
+
+    std::cout << "Main memory contents:" << std::endl;
+    for (int value : mainMemory) {
+        std::cout << value << " ";
+    }
+    std::cout << std::endl;
+
+
+    return 0;
+}
