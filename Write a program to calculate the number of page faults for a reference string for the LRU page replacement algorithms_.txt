@@ -1,0 +1,68 @@
+﻿16. #include <iostream>
+#include <vector>
+#include <unordered_map>
+#include <list>
+
+
+using namespace std;
+
+
+// Function to calculate page faults using LRU page replacement
+int calculatePageFaults(const vector<int> &pages, int frameSize) {
+    unordered_map<int, list<int>::iterator> pageMap;  // Maps page numbers to their positions in the list
+    list<int> lruList;  // Keeps track of the order of pages for LRU
+    int pageFaults = 0;
+
+
+    for (int page : pages) {
+        // If the page is not already in frames (a page fault occurs)
+        if (pageMap.find(page) == pageMap.end()) {
+            // If frame is full, remove the least recently used page
+            if (lruList.size() == frameSize) {
+                int lruPage = lruList.back();  // The least recently used page is at the back
+                lruList.pop_back();
+                pageMap.erase(lruPage);  // Remove it from the map
+            }
+            pageFaults++;  // Increment page fault count
+        }
+        // If page is in frames, remove it from its current position in the LRU list
+        else {
+            lruList.erase(pageMap[page]);
+        }
+
+
+        // Add the current page to the front of the LRU list (most recently used)
+        lruList.push_front(page);
+        pageMap[page] = lruList.begin();  // Update the page's position in the map
+    }
+
+
+    return pageFaults;
+}
+
+
+int main() {
+    int n, frameSize;
+
+
+    cout << "Enter the number of pages in the reference string: ";
+    cin >> n;
+    vector<int> pages(n);
+
+
+    cout << "Enter the reference string: ";
+    for (int i = 0; i < n; i++) {
+        cin >> pages[i];
+    }
+
+
+    cout << "Enter the number of frames: ";
+    cin >> frameSize;
+
+
+    int pageFaults = calculatePageFaults(pages, frameSize);
+    cout << "Number of page faults: " << pageFaults << endl;
+
+
+    return 0;
+}
