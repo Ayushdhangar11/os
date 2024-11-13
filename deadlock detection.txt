@@ -1,0 +1,102 @@
+﻿#include <iostream>
+#include <vector>
+
+
+using namespace std;
+
+
+// Function to check if all processes have finished
+bool checkAllFinished(const vector<bool> &finish) {
+    for (bool f : finish)
+        if (!f)
+            return false;
+    return true;
+}
+
+
+// Function to check if resources can be allocated to a process
+bool canAllocate(const vector<int> &work, const vector<int> &need) {
+    for (size_t i = 0; i < work.size(); i++)
+        if (work[i] < need[i])
+            return false;
+    return true;
+}
+
+
+// Function to detect deadlock
+bool deadlockDetection(const vector<vector<int>> &allocation, const vector<vector<int>> &need, vector<int> &available) {
+    int numProcesses = allocation.size();
+    int numResources = available.size();
+
+
+    // Initialize work = available and finish array
+    vector<int> work = available;
+    vector<bool> finish(numProcesses, false);
+
+
+    bool allocationPossible = true;
+    while (allocationPossible) {
+        allocationPossible = false;
+        for (int i = 0; i < numProcesses; i++) {
+            if (!finish[i] && canAllocate(work, need[i])) {
+                for (int j = 0; j < numResources; j++) {
+                    work[j] += allocation[i][j];
+                }
+                finish[i] = true;
+                allocationPossible = true;
+            }
+        }
+    }
+    // Check if all processes are finished
+    if (checkAllFinished(finish)) {
+        cout << "No Deadlock detected." << endl;
+        return false;
+    } else {
+        cout << "Deadlock detected!" << endl;
+        return true;
+    }
+}
+
+
+int main() {
+    int numProcesses, numResources;
+
+
+    cout << "Enter the number of processes: ";
+    cin >> numProcesses;
+    cout << "Enter the number of resources: ";
+    cin >> numResources;
+
+
+    vector<vector<int>> allocation(numProcesses, vector<int>(numResources));
+    vector<vector<int>> need(numProcesses, vector<int>(numResources));
+    vector<int> available(numResources);
+
+
+    cout << "Enter allocation matrix: \n";
+    for (int i = 0; i < numProcesses; i++) {
+        for (int j = 0; j < numResources; j++) {
+            cin >> allocation[i][j];
+        }
+    }
+
+
+    cout << "Enter need matrix: \n";
+    for (int i = 0; i < numProcesses; i++) {
+        for (int j = 0; j < numResources; j++) {
+            cin >> need[i][j];
+        }
+    }
+
+
+    cout << "Enter available resources: \n";
+    for (int i = 0; i < numResources; i++) {
+        cin >> available[i];
+    }
+
+
+    deadlockDetection(allocation, need, available);
+
+
+    return 0;
+}
