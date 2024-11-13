@@ -1,0 +1,46 @@
+﻿24.⁠ ⁠Write a program to read and copy the contents of file character by character, line by line
+
+
+.#include <iostream>
+#include <fstream>
+#include <string>
+
+
+void copyFile(const std::string& sourceFile, const std::string& destinationFile) {
+    std::ifstream src(sourceFile, std::ios::in);
+    std::ofstream dst(destinationFile, std::ios::out);
+
+
+    if (!src.is_open()) {
+        std::cerr << "Error: Source file '" << sourceFile << "' not found." << std::endl;
+        return;
+    }
+
+
+    if (!dst.is_open()) {
+        std::cerr << "Error: Unable to write to destination file '" << destinationFile << "'." << std::endl;
+        return;
+    }
+
+
+    std::string line;
+    while (std::getline(src, line)) {
+        for (char c : line) {
+            dst << c;
+        }
+        dst << "\n"; // Write newline character after each line
+    }
+
+
+    src.close();
+    dst.close();
+
+
+    std::cout << "File copy complete." << std::endl;
+}
+
+
+int main() {
+    copyFile("source_file.txt", "destination_file.txt");
+    return 0;
+}
