@@ -1,0 +1,344 @@
+﻿Experiment Number: 4
+NAME: Ayush Sanjay Dhangar                                        ROLLNO:42 
+CLASS: TY_IT-A                                                         BATCH: 2
+DATE OF PERFORMANCE: 21/08/2024
+___________________________________________________________________________
+1. Design menu driven application demonstrating use of different system calls.
+1. process related system call:fork,exit, wait,
+2) file realted system call: open,read,write,close,link,unlink,stat
+3) communication system call:pipe,fifo,
+4)information related system call
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+
+
+void process_menu() {
+    int choice;
+    pid_t pid;
+
+
+    while (1) {
+        printf("\n--- Process-related System Calls ---\n");
+        printf("1. fork()\n");
+        printf("2. exit()\n");
+        printf("3. wait()\n");
+        printf("4. Back to Main Menu\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+
+        switch (choice) {
+            case 1:
+                pid = fork();
+                if (pid == 0) {
+                    printf("Child process created. PID: %d\n", getpid());
+                    exit(0);
+                } else if (pid > 0) {
+                    printf("Parent process. PID: %d\n", getpid());
+                } else {
+                    perror("fork failed");
+                }
+                break;
+
+
+            case 2:
+                printf("Exiting process with PID: %d\n", getpid());
+                exit(0);
+                break;
+
+
+            case 3:
+                pid = fork();
+                if (pid == 0) {
+                    printf("Child process exiting. PID: %d\n", getpid());
+                    exit(0);
+                } else if (pid > 0) {
+                    wait(NULL);
+                    printf("Child process terminated. Parent PID: %d\n", getpid());
+                }
+                break;
+
+
+            case 4:
+                return;
+
+
+            default:
+                printf("Invalid choice! Please try again.\n");
+        }
+    }
+}
+
+
+void file_menu() {
+    int choice;
+    int fd;
+    char buffer[1024];
+    ssize_t bytes;
+
+
+    while (1) {
+        printf("\n--- File-related System Calls ---\n");
+        printf("1. open()\n");
+        printf("2. read()\n");
+        printf("3. write()\n");
+        printf("4. close()\n");
+        printf("5. link()\n");
+        printf("6. unlink()\n");
+        printf("7. stat()\n");
+        printf("8. Back to Main Menu\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+
+        switch (choice) {
+            case 1:
+                fd = open("example.txt", O_CREAT | O_RDWR, 0666);
+                if (fd == -1) {
+                    perror("open failed");
+                } else {
+                    printf("File opened successfully. FD: %d\n", fd);
+                }
+                break;
+
+
+            case 2:
+                if (fd != -1) {
+                    bytes = read(fd, buffer, sizeof(buffer));
+                    if (bytes == -1) {
+                        perror("read failed");
+                    } else {
+                        printf("Read %ld bytes: %s\n", bytes, buffer);
+                    }
+                } else {
+                    printf("Please open a file first.\n");
+                }
+                break;
+
+
+            case 3:
+                if (fd != -1) {
+                    printf("Enter text to write to file: ");
+                    scanf("%s", buffer);
+                    bytes = write(fd, buffer, sizeof(buffer));
+                    if (bytes == -1) {
+                        perror("write failed");
+                    } else {
+                        printf("Wrote %ld bytes to file.\n", bytes);
+                    }
+                } else {
+                    printf("Please open a file first.\n");
+                }
+                break;
+
+
+            case 4:
+                if (fd != -1) {
+                    close(fd);
+                    printf("File closed successfully.\n");
+                } else {
+                    printf("No file to close.\n");
+                }
+                break;
+
+
+            case 5:
+                if (link("example.txt", "link_example.txt") == -1) {
+                    perror("link failed");
+                } else {
+                    printf("Link created successfully.\n");
+                }
+                break;
+
+
+            case 6:
+                if (unlink("example.txt") == -1) {
+                    perror("unlink failed");
+                } else {
+                    printf("File unlinked successfully.\n");
+                }
+                break;
+
+
+            case 7: {
+                struct stat fileStat;
+                if (stat("example.txt", &fileStat) == -1) {
+                    perror("stat failed");
+                } else {
+                    printf("File Size: %ld bytes\n", fileStat.st_size);
+                    printf("Number of Links: %ld\n", fileStat.st_nlink);
+                    printf("File inode: %ld\n", fileStat.st_ino);
+                }
+                break;
+            }
+
+
+            case 8:
+                return;
+
+
+            default:
+                printf("Invalid choice! Please try again.\n");
+        }
+    }
+}
+
+
+void communication_menu() {
+    int choice;
+    int pipefd[2];
+    pid_t pid;
+    char buffer[1024];
+
+
+    while (1) {
+        printf("\n--- Communication System Calls ---\n");
+        printf("1. pipe()\n");
+        printf("2. fifo()\n");
+        printf("3. Back to Main Menu\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+
+        switch (choice) {
+            case 1:
+                if (pipe(pipefd) == -1) {
+                    perror("pipe failed");
+                } else {
+                    pid = fork();
+                    if (pid == 0) {
+                        close(pipefd[0]);
+                        write(pipefd[1], "Hello from child process!", 26);
+                        close(pipefd[1]);
+                        exit(0);
+                    } else if (pid > 0) {
+                        wait(NULL);
+                        close(pipefd[1]);
+                        read(pipefd[0], buffer, sizeof(buffer));
+                        printf("Parent received: %s\n", buffer);
+                        close(pipefd[0]);
+                    } else {
+                        perror("fork failed");
+                    }
+                }
+                break;
+
+
+            case 2:
+                printf("FIFO not implemented in this example.\n");
+                break;
+
+
+            case 3:
+                return;
+
+
+            default:
+                printf("Invalid choice! Please try again.\n");
+        }
+    }
+}
+
+
+void info_menu() {
+    int choice;
+
+
+    while (1) {
+        printf("\n--- Information-related System Calls ---\n");
+        printf("1. getpid()\n");
+        printf("2. getppid()\n");
+        printf("3. getuid()\n");
+        printf("4. getgid()\n");
+        printf("5. Back to Main Menu\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+
+        switch (choice) {
+            case 1:
+                printf("Current Process ID: %d\n", getpid());
+                break;
+
+
+            case 2:
+                printf("Parent Process ID: %d\n", getppid());
+                break;
+
+
+            case 3:
+                printf("User ID: %d\n", getuid());
+                break;
+
+
+            case 4:
+                printf("Group ID: %d\n", getgid());
+                break;
+
+
+            case 5:
+                return;
+
+
+            default:
+                printf("Invalid choice! Please try again.\n");
+        }
+    }
+}
+
+
+int main() {
+    int choice;
+
+
+    while (1) {
+        printf("\n--- Main Menu ---\n");
+        printf("1. Process-related System Calls\n");
+        printf("2. File-related System Calls\n");
+        printf("3. Communication System Calls\n");
+        printf("4. Information-related System Calls\n");
+        printf("5. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+
+        switch (choice) {
+            case 1:
+                process_menu();
+                break;
+
+
+            case 2:
+                file_menu();
+                break;
+
+
+            case 3:
+                communication_menu();
+                break;
+
+
+            case 4:
+                info_menu();
+                break;
+
+
+            case 5:
+                exit(0);
+
+
+            default:
+                printf("Invalid choice! Please try again.\n");
+        }
+    }
+
+
+    return 0;
+}
