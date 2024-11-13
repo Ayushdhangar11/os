@@ -1,0 +1,75 @@
+﻿18. #include <iostream>
+#include <vector>
+#include <iomanip>
+#include <cmath>
+
+
+using namespace std;
+
+
+// Function to calculate the total seek time using FCFS Disk Scheduling
+int calculateFCFSDiskScheduling(const vector<int> &requests, int initialHeadPosition) {
+    int totalSeekTime = 0;
+    int currentPosition = initialHeadPosition;
+
+
+    cout << "\nRequest\tCurrent Head Position\tSeek Time" << endl;
+    cout << "-----------------------------------------" << endl;
+
+
+    for (int request : requests) {
+        int seekTime = abs(currentPosition - request);
+        totalSeekTime += seekTime;
+        
+        // Print details of each request in tabular format
+        cout << setw(7) << request 
+             << setw(20) << currentPosition
+             << setw(15) << seekTime << endl;
+        
+        currentPosition = request;  // Move the head to the current request
+    }
+    return totalSeekTime;
+}
+
+
+int main() {
+    int n, initialHeadPosition;
+
+
+    // Input: Number of requests
+    cout << "Enter the number of disk requests: ";
+    cin >> n;
+
+
+    vector<int> requests(n);
+
+
+    // Input: Disk request sequence
+    cout << "Enter the disk request sequence: ";
+    for (int i = 0; i < n; i++) {
+        cin >> requests[i];
+    }
+
+
+    // Input: Initial head position
+    cout << "Enter the initial head position: ";
+    cin >> initialHeadPosition;
+
+
+    // Display accepted input in tabular format
+    cout << "\nAccepted Input:" << endl;
+    cout << "--------------------------" << endl;
+    cout << "Request Sequence: ";
+    for (int req : requests) {
+        cout << req << " ";
+    }
+    cout << "\nInitial Head Position: " << initialHeadPosition << endl;
+
+
+    // Calculate and display total seek time and details
+    int totalSeekTime = calculateFCFSDiskScheduling(requests, initialHeadPosition);
+    cout << "\nTotal Seek Time: " << totalSeekTime << endl;
+
+
+    return 0;
+}
