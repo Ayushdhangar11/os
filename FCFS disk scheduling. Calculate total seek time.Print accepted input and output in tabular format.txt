@@ -1,21 +1,19 @@
-﻿18. #include <iostream>
+#include <iostream>
 #include <vector>
 #include <iomanip>
 #include <cmath>
-
+#include <cstdlib>
+#include <ctime>
 
 using namespace std;
-
 
 // Function to calculate the total seek time using FCFS Disk Scheduling
 int calculateFCFSDiskScheduling(const vector<int> &requests, int initialHeadPosition) {
     int totalSeekTime = 0;
     int currentPosition = initialHeadPosition;
 
-
     cout << "\nRequest\tCurrent Head Position\tSeek Time" << endl;
     cout << "-----------------------------------------" << endl;
-
 
     for (int request : requests) {
         int seekTime = abs(currentPosition - request);
@@ -31,30 +29,36 @@ int calculateFCFSDiskScheduling(const vector<int> &requests, int initialHeadPosi
     return totalSeekTime;
 }
 
+// Function to simulate input values automatically
+void simulateInput(int &n, vector<int> &requests, int &initialHeadPosition) {
+    // Seed random number generator
+    srand(static_cast<unsigned int>(time(0)));
+
+    // Generate a random number of requests (between 5 and 10)
+    n = rand() % 6 + 5;
+    cout << "Simulating " << n << " requests:\n";
+
+    // Generate random disk request sequence (between 0 and 199)
+    requests.clear();
+    for (int i = 0; i < n; i++) {
+        requests.push_back(rand() % 200);  // Random number between 0 and 199
+    }
+
+    // Generate a random initial head position (between 0 and 199)
+    initialHeadPosition = rand() % 200;
+    cout << "Generated request sequence: ";
+    for (int req : requests) {
+        cout << req << " ";
+    }
+    cout << "\nGenerated initial head position: " << initialHeadPosition << endl;
+}
 
 int main() {
     int n, initialHeadPosition;
+    vector<int> requests;
 
-
-    // Input: Number of requests
-    cout << "Enter the number of disk requests: ";
-    cin >> n;
-
-
-    vector<int> requests(n);
-
-
-    // Input: Disk request sequence
-    cout << "Enter the disk request sequence: ";
-    for (int i = 0; i < n; i++) {
-        cin >> requests[i];
-    }
-
-
-    // Input: Initial head position
-    cout << "Enter the initial head position: ";
-    cin >> initialHeadPosition;
-
+    // Simulate input values
+    simulateInput(n, requests, initialHeadPosition);
 
     // Display accepted input in tabular format
     cout << "\nAccepted Input:" << endl;
@@ -65,11 +69,9 @@ int main() {
     }
     cout << "\nInitial Head Position: " << initialHeadPosition << endl;
 
-
     // Calculate and display total seek time and details
     int totalSeekTime = calculateFCFSDiskScheduling(requests, initialHeadPosition);
     cout << "\nTotal Seek Time: " << totalSeekTime << endl;
-
 
     return 0;
 }
