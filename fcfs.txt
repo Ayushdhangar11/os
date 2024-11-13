@@ -1,0 +1,74 @@
+﻿#include <iostream>
+#include <vector>
+
+
+using namespace std;
+
+
+struct Process {
+    int pid;           // Process ID
+    int arrivalTime;   // Arrival Time of process
+    int burstTime;     // Burst Time of process
+    int finishTime;    // Finish Time of process
+    int turnaroundTime; // Turnaround Time of process
+    int waitingTime;   // Waiting Time of process
+};
+
+
+// Function to calculate finish time, turnaround time, and waiting time
+void calculateTimes(vector<Process>& processes) {
+    int currentTime = 0;
+    
+    for (auto& process : processes) {
+        // Finish time for each process is the current time plus burst time
+        currentTime = max(currentTime, process.arrivalTime) + process.burstTime;
+        process.finishTime = currentTime;
+
+
+        // Turnaround time = Finish time - Arrival time
+        process.turnaroundTime = process.finishTime - process.arrivalTime;
+
+
+        // Waiting time = Turnaround time - Burst time
+        process.waitingTime = process.turnaroundTime - process.burstTime;
+    }
+}
+
+
+void displayResults(const vector<Process>& processes) {
+    cout << "PID\tArrival\tBurst\tFinish\tTurnaround\tWaiting\n";
+    for (const auto& process : processes) {
+        cout << process.pid << "\t" 
+             << process.arrivalTime << "\t"
+             << process.burstTime << "\t" 
+             << process.finishTime << "\t"
+             << process.turnaroundTime << "\t\t" 
+             << process.waitingTime << endl;
+    }
+}
+
+
+int main() {
+    int n;
+    cout << "Enter the number of processes: ";
+    cin >> n;
+
+
+    vector<Process> processes(n);
+    for (int i = 0; i < n; i++) {
+        processes[i].pid = i + 1;
+        cout << "Enter Arrival Time and Burst Time for Process " << processes[i].pid << ": ";
+        cin >> processes[i].arrivalTime >> processes[i].burstTime;
+    }
+
+
+    // Calculate the times for each process
+    calculateTimes(processes);
+
+
+    // Display the results
+    displayResults(processes);
+
+
+    return 0;
+}
