@@ -85,3 +85,156 @@ int main()
 
     return 0;
 }
+
+
+
+### **Code Explanation:**
+
+1. **Global Constants (`max` and `min`):**
+   - `max = 199`: Represents the maximum disk position.
+   - `min = 0`: Represents the minimum disk position.
+
+2. **`Sort()` Function:**
+   - **Purpose:** Sorts the array `arr` containing disk requests in ascending order to ensure requests are processed sequentially.
+   - **Implementation:** Uses `std::sort()` to sort the array.
+
+   ```cpp
+   void Sort(std::vector<int>& arr, int n) {
+       std::sort(arr.begin(), arr.end());
+   }
+   ```
+
+3. **`Scan()` Function:**
+   - **Purpose:** Simulates the SCAN disk scheduling algorithm.
+   - **Input Parameters:** `arr` (array of requests), `head` (initial position of the head), `n` (number of requests).
+   - **Steps:**
+     - Sort the request array.
+     - Find the index of the current head position in the sorted list.
+     - Move the head in one direction (toward the maximum request).
+     - After reaching the maximum, reverse direction and service the remaining requests.
+     - Calculate the seek time based on the total distance the head moves.
+
+   ```cpp
+   void Scan(std::vector<int>& arr, int head, int n) {
+       int index;
+       Sort(arr, n);  // Sort the requests
+
+       // Find the current head position in the sorted list
+       for (int i = 0; i < n; i++) {
+           if (arr[i] == head) {
+               index = i;
+               break;
+           }
+       }
+
+       // Move head towards the max request
+       for (int i = index; i < n - 1; i++) {
+           std::cout << "\nHead moved from " << arr[i] << " to " << arr[i + 1];
+       }
+
+       // Move head from max to min
+       std::cout << "\nHead moved from " << arr[n - 1] << " to " << max;
+       std::cout << "\nHead moved from " << max << " to " << arr[index - 1];
+
+       // Reverse the head towards the min request
+       for (int i = index - 1; i > 0; i--) {
+           std::cout << "\nHead moved from " << arr[i] << " to " << arr[i - 1];
+       }
+
+       int seek = std::abs(max - head) + std::abs(max - arr[0]);  // Correct seek time calculation
+       std::cout << "\nScan Seek time= " << seek;
+   }
+   ```
+
+4. **`simulateInput()` Function:**
+   - **Purpose:** Generates random disk requests and an initial head position to simulate a real-world scenario.
+   - **Implementation:** 
+     - Randomly generates a number of disk requests between 5 and 10.
+     - Random disk request positions between 0 and 199.
+     - A random initial head position between 0 and 199.
+   
+   ```cpp
+   void simulateInput(int& n, std::vector<int>& arr, int& head) {
+       std::srand(static_cast<unsigned int>(std::time(0)));
+
+       // Generate random requests between 5 and 10
+       n = std::rand() % 6 + 5;  
+       arr.clear();
+       for (int i = 0; i < n; i++) {
+           arr.push_back(std::rand() % (max + 1));
+       }
+
+       // Generate a random head position
+       head = std::rand() % (max + 1);
+       std::cout << "Generated requests: ";
+       for (int i = 0; i < n; i++) {
+           std::cout << arr[i] << " ";
+       }
+       std::cout << "\nGenerated head: " << head << "\n";
+   }
+   ```
+
+5. **`main()` Function:**
+   - **Purpose:** Initiates the simulation by calling the `simulateInput()` function to generate random requests and the head position. Then it calls the `Scan()` function to simulate the disk scheduling process.
+   
+   ```cpp
+   int main() {
+       int n, head;
+       std::vector<int> arr;
+
+       // Simulate the input values
+       simulateInput(n, arr, head);
+
+       // Add the head position to the request list
+       arr.push_back(head);
+
+       // Call the Scan function
+       Scan(arr, head, n + 1);
+
+       return 0;
+   }
+   ```
+
+---
+
+### Code Explanation:
+
+1. **Global Constants (`max` and `min`):**
+   - `max = 199` and `min = 0` represent the maximum and minimum positions of the disk tracks. These constants define the range in which disk requests can be made.
+
+2. **`Sort()` Function:**
+   - This function sorts the disk requests in ascending order to prepare them for processing. Sorting is a critical step in disk scheduling algorithms like SCAN, as they process requests in a sequential manner.
+
+3. **`Scan()` Function:**
+   - The `Scan` function implements the SCAN disk scheduling algorithm. The steps involved are:
+     1. **Sorting Requests:** The array of disk requests is sorted in ascending order.
+     2. **Finding the Current Head Position:** The algorithm identifies the position of the head (the current position of the disk arm).
+     3. **Moving Toward the Maximum Request:** The head moves toward the maximum track position (end of the disk), servicing requests along the way.
+     4. **Reversing Direction:** Once the head reaches the maximum request, it reverses direction and starts moving toward the minimum track position, servicing the remaining requests.
+     5. **Calculating Seek Time:** Seek time is calculated based on the total distance the disk arm moves to service all the requests. This is the sum of the absolute distances the head moves from one request to the next.
+
+4. **`simulateInput()` Function:**
+   - This function simulates input by randomly generating:
+     - A number of disk requests between 5 and 10.
+     - A random disk request sequence (values between 0 and 199).
+     - A random initial head position (also between 0 and 199).
+   - This simulated input is used to test the SCAN algorithm in a controlled environment.
+
+5. **`main()` Function:**
+   - In the `main` function, the simulated input is generated and the SCAN algorithm is applied to process the disk requests and calculate the seek time.
+
+### Theoretical Explanation:
+
+- **Disk Scheduling:**
+  - Disk scheduling refers to the method by which the operating system decides the order in which disk I/O requests are processed. Efficient disk scheduling improves the overall performance of the system by reducing seek times.
+
+- **SCAN Algorithm:**
+  - The SCAN algorithm works by moving the disk arm towards one end of the disk, servicing requests along the way, and then reversing direction after reaching the end of the disk. It is also known as the "elevator algorithm" because the disk arm behaves similarly to an elevator moving up and down to service requests.
+
+  - The SCAN algorithm has a predictable behavior, but it can be less efficient if the requests are not uniformly distributed, as it might lead to the arm traveling long distances without servicing many requests.
+
+- **Seek Time Calculation:**
+  - Seek time is the time taken for the disk arm to move from its current position to the desired track. The seek time is a critical factor in the performance of disk operations, and optimizing it is key to improving system throughput.
+
+- **Random Input Simulation:**
+  - By simulating random disk requests and initial head positions, this program helps visualize how the SCAN algorithm operates in different scenarios, providing insights into the efficiency of the algorithm under various conditions.
