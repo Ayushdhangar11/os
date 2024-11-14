@@ -84,3 +84,54 @@ int main() {
 
     return 0;
 }
+
+
+### Explanation of the Code
+
+1. **Enum Definition (`Opcode`)**:
+   - The `Opcode` enum class defines supported operation codes (ADD, SUB, MUL, DIV), and also an `INVALID` opcode to represent unsupported operations.
+
+2. **Function `checkOpcodeError(Opcode opcode)`**:
+   - This function checks if the provided opcode is valid by comparing it against the supported opcodes. 
+   - If the opcode is unsupported (i.e., not one of ADD, SUB, MUL, or DIV), it throws a `std::runtime_error` exception to simulate an opcode error.
+
+3. **Function `raiseInterrupt(const std::string& errorMessage)`**:
+   - This function simulates an interrupt by printing an error message to the console when an error is encountered, mimicking how an OS would handle exceptional events.
+
+4. **Function `executeJob(Opcode opcode, int operand1, int operand2)`**:
+   - This function executes a job based on the provided opcode. It:
+     - Calls `checkOpcodeError` to validate the opcode.
+     - If the opcode is valid, it performs the corresponding operation (ADD, SUB, MUL, or DIV) on the operands.
+     - If division is attempted by zero, an interrupt is raised to handle the error.
+     - If the opcode is unsupported, an interrupt is raised with the message "Opcode error: Unsupported opcode."
+   
+5. **`main` Function**:
+   - In the `main` function, an opcode (`ADD`), and operands (`10` and `2`) are provided. The `executeJob` function is called with these values to simulate executing the job.
+
+### Operating System Concepts Used
+
+1. **Opcode Error**:
+   - The opcode error occurs when an invalid or unsupported operation code is encountered. This is similar to how an operating system checks and handles unsupported instructions or invalid system calls from a process.
+
+2. **Interrupt Handling**:
+   - Interrupts in an operating system are mechanisms used to stop the normal execution of a process in response to exceptional conditions (like errors or hardware requests) and redirect control to an error handler or service routine.
+   - In the code, an interrupt is simulated by calling the `raiseInterrupt` function whenever an error is detected (either unsupported opcode or division by zero).
+
+3. **Exception Handling**:
+   - Exception handling is used to manage errors and exceptional conditions in software systems. In this code, the `try-catch` block is used to catch the `std::runtime_error` exception thrown when an unsupported opcode is detected. This allows for structured error handling.
+
+4. **Job Execution Control**:
+   - In an operating system, jobs (or tasks) are executed by processes. If an error occurs during job execution, such as an invalid operation or division by zero, the job may be interrupted and control may be transferred to an error-handling routine, as simulated in this code.
+
+### Summary of Theory
+
+1. **Opcode Error**:
+   - An opcode error occurs when a processor or interpreter encounters an operation code that it does not recognize or support. This can lead to errors in the execution of a program or job.
+
+2. **Interrupt Handling**:
+   - Interrupts are used in OS systems to respond to errors or events. An interrupt can pause a running process and transfer control to a handler to address the issue. In this code, interrupts are simulated through function calls that display error messages when problems like unsupported opcodes or division by zero occur.
+
+3. **Exceptions in OS**:
+   - Operating systems often use exception handling mechanisms to deal with abnormal situations during the execution of processes, such as invalid instructions or access violations. Exception handling in C++ is used here to manage opcode errors in a similar fashion.
+
+The code simulates the detection of opcode errors and interrupt handling that an operating system might employ to manage errors during job execution.
