@@ -100,3 +100,101 @@ int main() {
 
     return 0;
 }
+
+
+### Explanation of the Code
+
+This code is designed to **detect deadlock** in a system using a method based on resource allocation. It checks whether processes in a system can complete their execution without causing a deadlock, given the current allocation of resources and the remaining needs of each process. The code implements a version of the **Deadlock Detection Algorithm**, which is used in operating systems to avoid and detect situations where processes are stuck in a cycle of waiting for resources.
+
+### Key Concepts in Operating Systems (OS)
+
+1. **Deadlock**:
+   - A **deadlock** occurs when a group of processes are in a situation where each process is waiting for a resource that another process holds, and none of them can proceed. This situation leads to a standstill, where none of the processes can make progress.
+   
+2. **Deadlock Detection**:
+   - In operating systems, **deadlock detection** algorithms are used to identify when a system is in a state of deadlock. The algorithm runs periodically to check if any process is stuck in a waiting state because the required resources are held by other waiting processes.
+   - If a deadlock is detected, the system must take action, such as terminating processes or rolling back certain actions, to recover from deadlock.
+
+3. **Resource Allocation**:
+   - Processes need resources (CPU, memory, I/O devices) to perform their tasks. The system allocates resources to processes based on their **allocation matrix** and their **need matrix**. The **available vector** represents the remaining resources in the system.
+
+4. **Safety Check**:
+   - The system is in a **safe state** if there exists a sequence of processes such that each process can complete with the resources available at that time. Conversely, an **unsafe state** may lead to deadlock if there is no such sequence.
+
+### Data Structures Used in the Code
+
+- **Allocation Matrix** (`allocation`): 
+  - This matrix keeps track of the resources allocated to each process. `allocation[i][j]` indicates the number of resources of type `j` allocated to process `i`.
+
+- **Need Matrix** (`need`): 
+  - The `need[i][j]` matrix represents the remaining resources needed by process `i` to complete its task. It is calculated as:
+    \[
+    \text{need}[i][j] = \text{max}[i][j] - \text{allocation}[i][j]
+    \]
+    where `max[i][j]` is the maximum number of resources of type `j` that process `i` will ever need.
+
+- **Available Vector** (`available`): 
+  - The available vector represents the number of resources of each type that are available for allocation. It is calculated as:
+    \[
+    \text{available}[j] = \text{total resources of type j} - \text{sum of allocated resources of type j}
+    \]
+
+- **Work Vector** (`work`): 
+  - The `work` vector is used to simulate the available resources at each step of the detection process. Initially, it is set to be equal to the `available` vector. It tracks the resources available for allocation to uncompleted processes.
+
+- **Finish Array** (`finish`): 
+  - This array tracks whether a process has completed. If a process finishes, its entry in the `finish` array is set to `true`; otherwise, it remains `false`.
+
+### Code Walkthrough
+
+1. **Input**:
+   - The code begins by prompting the user for the number of processes (`numProcesses`) and the number of resource types (`numResources`).
+   - It then reads the **allocation matrix** (`allocation`), the **need matrix** (`need`), and the **available resources vector** (`available`) from the user. The user inputs the allocation and need matrices directly for each process, and the total available resources are also provided.
+
+2. **Deadlock Detection**:
+   - The function `deadlockDetection` is responsible for detecting deadlock in the system. It operates as follows:
+   
+     - **Initialization**:
+       - A vector `work` is initialized as a copy of the `available` vector, representing the current available resources at the start of detection.
+       - A `finish` array of size `numProcesses` is initialized to `false`, indicating that no process has finished initially.
+   
+     - **While Loop for Allocation**:
+       - The algorithm enters a **while loop** that repeatedly tries to find processes that can finish.
+       - In each iteration of the loop, it checks all processes. If a process is not finished (`finish[i] == false`) and its **need** can be met with the **available resources** (checked by the function `canAllocate`), it is marked as finished (`finish[i] = true`), and its allocated resources are added back to the `work` vector (which increases the available resources).
+       - If a process is found to be able to finish, the loop will continue and try to find the next process that can finish.
+
+     - **Termination**:
+       - This continues until no further processes can be allocated resources, meaning the system has either found a safe sequence of process executions or is stuck in a potential deadlock.
+   
+3. **Check for Deadlock**:
+   - After the loop, the function `checkAllFinished` is called to check if all processes are finished. If all entries in the `finish` array are `true`, then no deadlock has occurred, and the system is in a safe state. Otherwise, the system is in a **deadlocked state**.
+
+4. **Output**:
+   - Based on the result of the deadlock check, the code outputs either "No Deadlock detected" or "Deadlock detected!" to indicate whether the system is in a safe state or a deadlocked state.
+   
+### Theory Behind Deadlock Detection
+
+- **Deadlock** occurs when processes are stuck in a cycle of waiting for each other to release resources, and none of them can proceed. It is essential for an operating system to detect deadlock to avoid indefinite waiting and resource wastage.
+  
+- **Deadlock Detection Algorithms**:
+  - The **Banker's Algorithm** is a more preventive method that avoids deadlock by checking if resource allocation will result in a safe state before actually allocating resources.
+  - **Deadlock Detection**, like the one in this code, is a reactive approach, which checks if deadlock has already occurred and tries to determine the state of the system.
+
+- **Safe State**:
+  - The system is in a **safe state** if there is at least one sequence of processes that can all be executed without causing a deadlock.
+  - If no such sequence exists, the system is in an **unsafe state**, potentially leading to deadlock.
+
+### Key Functions
+
+1. **checkAllFinished**:
+   - This function checks if all processes in the system have finished executing by iterating through the `finish` array.
+
+2. **canAllocate**:
+   - This function checks if the resources currently available (the `work` vector) are sufficient to satisfy the needs of a process.
+
+3. **deadlockDetection**:
+   - This is the core function of the code, implementing the **deadlock detection** algorithm. It tries to find processes that can be safely executed (i.e., their needs can be met with the available resources) and updates the available resources and the finish state of the processes accordingly.
+
+### Conclusion
+
+This program is a **deadlock detection** algorithm that simulates resource allocation and detects if a system is deadlocked based on the current allocation of resources and the needs of the processes. It works by trying to find a sequence of processes that can complete given the available resources, and if such a sequence exists, the system is in a safe state. If no such sequence can be found, the system is in a **deadlock state**, and processes cannot proceed.
