@@ -1,0 +1,188 @@
+
+
+#include <iostream>
+using namespace std;
+
+int main()
+{
+    int i, j, k, n = 12, f = 4, max, pf = 0;
+    int rs[25] = {7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 3}; // Hardcoded reference string
+    int frame[10], next[25];
+
+    // Hardcoded number of frames
+    // n = length of reference string
+    // f = number of frames
+
+    for (i = 0; i < f; i++)
+    {
+        frame[i] = -1;
+    }
+
+    for (i = 0; i < n; i++)
+    {
+        int flag = 0;
+
+        // Check if page is already in frame
+        for (j = 0; j < f; j++)
+        {
+            if (frame[j] == rs[i])
+            {
+                flag = 1;
+                break;
+            }
+        }
+
+        // If not in frame,
+        if (flag == 0)
+        {
+
+            // To check if empty frame is available-
+            int flag1 = 0; // Initialize to -1, indicating no empty frame found
+            for (j = 0; j < f; j++)
+            {
+                if (frame[j] == -1)
+                {
+                    frame[j] = rs[i];
+                    flag1 = 1;
+                    pf++;
+                    break; // Found an empty frame, exit the loop
+                }
+            }
+
+            // If empty frame not found, perform optimal replacement i.e find the page with the furthest future reference
+            if (flag1 == 0)
+            {
+                max = -1;
+                int index = 0;
+                for (j = 0; j < f; j++)
+                {
+                    int found = 0;
+                    for (k = i + 1; k < n; k++)
+                    {
+                        if (frame[j] == rs[k])
+                        {
+                            found = 1;
+                            break;
+                        }
+                    }
+                    if (found == 0)
+                    {
+                        next[j] = n;
+                    }
+                    else
+                    {
+                        next[j] = k;
+                    }
+                    if (next[j] > max)
+                    {
+                        max = next[j];
+                        index = j;
+                    }
+                }
+                frame[index] = rs[i];
+                pf++;
+            }
+        }
+
+        // Print current page and frame
+        cout << rs[i] << "\t";
+        for (j = 0; j < f; j++)
+        {
+            cout << frame[j] << "\t";
+        }
+
+        // If there was a page fault, print the page fault number
+        if (flag == 0)
+        {
+            cout << "PF No. " << pf;
+        }
+        cout << endl;
+    }
+
+    cout << "\nThe number of page faults using Optimal algorithm are " << pf << endl;
+
+    return 0;
+}
+
+### Explanation of the Code
+
+This C++ program simulates the **Optimal Page Replacement** algorithm. The Optimal Page Replacement algorithm is used to decide which page to evict when there is a page fault and memory is full. The idea is to replace the page that is not going to be used for the longest period in the future.
+
+### Key Concepts in Operating Systems (OS)
+
+1. **Page Fault**:
+   - A **page fault** occurs when a process attempts to access a page that is not currently in memory. When this happens, the operating system must load the page from secondary storage (e.g., disk) into physical memory.
+
+2. **Page Replacement Algorithms**:
+   - When a page fault occurs and there are no free frames available in memory, the operating system must decide which page to evict from memory to make room for the new page. This process is managed by a **page replacement algorithm**.
+   - The **Optimal Page Replacement** algorithm chooses the page to evict by looking into the future and selecting the page that will not be used for the longest time. It is considered the **best possible page replacement algorithm**, but it is difficult to implement in practice because it requires knowledge of future page references.
+
+3. **Reference String**:
+   - The **reference string** is a sequence of page accesses (page numbers) that the process makes. The goal is to simulate how memory behaves when it must handle this sequence of page requests.
+
+4. **Memory Frames**:
+   - Memory is divided into fixed-size blocks called **frames**, which hold pages. The number of frames is limited by the physical memory available.
+
+### Data Structures Used in the Code
+
+1. **frame (array)**:
+   - This array simulates the memory frames. It keeps track of the pages currently loaded into memory. Initially, all frames are set to `-1`, indicating they are empty.
+
+2. **next (array)**:
+   - This array is used to keep track of the next usage of a page in the reference string. For each page in memory, we find the next occurrence in the reference string. The page that is used furthest in the future will be replaced.
+
+3. **rs (array)**:
+   - The **reference string** `rs` contains the sequence of pages being requested by the process.
+
+4. **pf (int)**:
+   - This variable counts the number of **page faults** that occur during the execution of the reference string.
+
+### Code Walkthrough
+
+1. **Initialization**:
+   - The **reference string** `rs` is hardcoded to `{7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 3}`. This represents the sequence of page requests.
+   - The **number of frames** `f` is hardcoded to 4, meaning the program simulates a memory system with 4 frames.
+
+2. **Frame Setup**:
+   - The **frame array** is initialized to `-1` for each of the 4 frames, indicating that they are empty at the beginning.
+
+3. **Page Replacement Process**:
+   - The program iterates through each page in the reference string (`rs[i]`) and checks if that page is already in one of the memory frames (`frame[j]`).
+   
+   - If the page is **found in memory** (no page fault), the loop skips the replacement process and continues to the next page.
+   
+   - If the page is **not found in memory** (a page fault occurs):
+     - The program first checks if there is an **empty frame**. If an empty frame is found, the page is inserted into that frame, and the **page fault counter** (`pf`) is incremented.
+     
+     - If there are no empty frames, the program uses the **Optimal page replacement algorithm** to decide which page to evict:
+       - It iterates over all pages currently in memory and looks at the reference string from the current position (`i + 1`) to find when each page will be used again.
+       - The page with the **furthest future reference** is selected for replacement because it will not be used for the longest period in the future.
+       - The page that will be replaced is then updated in the `frame` array, and the **page fault counter** is incremented.
+
+4. **Displaying Results**:
+   - After each page access, the current page and the contents of the memory frames are displayed. If a page fault occurs, the program also prints the page fault number (`PF No.`).
+   - After processing the entire reference string, the program displays the total number of page faults that occurred during the simulation.
+
+### Example Walkthrough
+
+Given the reference string `{7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 3}` and 4 frames:
+
+- **Step 1**: The first page, `7`, is not in memory, so it is loaded into an empty frame, causing a page fault. The **frame** becomes `[7, -1, -1, -1]`.
+  
+- **Step 2**: The second page, `0`, is not in memory, so it is loaded into another empty frame, causing another page fault. The **frame** becomes `[7, 0, -1, -1]`.
+
+- **Step 3**: The third page, `1`, is not in memory, so it is loaded into another empty frame, causing another page fault. The **frame** becomes `[7, 0, 1, -1]`.
+
+- **Step 4**: The fourth page, `2`, is not in memory, and all frames are full. The program uses the **Optimal algorithm** to replace the page that will be used furthest in the future. The page `7` is selected because it will not be used again for the longest time. After replacement, the **frame** becomes `[2, 0, 1, -1]`, and a page fault occurs.
+
+This process continues for all pages in the reference string.
+
+### Theory Behind the Optimal Page Replacement Algorithm
+
+The **Optimal Page Replacement** algorithm is theoretically the **best possible algorithm** because it minimizes the number of page faults. It does this by selecting the page that will not be used for the longest time in the future. The main disadvantage of the Optimal algorithm is that it requires knowledge of the future reference string, which is generally unavailable in real-world applications.
+
+In practice, the Optimal algorithm is not used directly in operating systems due to its impracticality, but it serves as a benchmark for evaluating the performance of other, more practical algorithms (such as LRU, FIFO, etc.).
+
+### Conclusion
+
+This program demonstrates the **Optimal Page Replacement** algorithm in action. While it is not typically used in real-world systems due to the need for future knowledge, it is an excellent theoretical model for understanding the challenges of managing memory and page faults in operating systems. The program efficiently simulates how the system would behave when using this algorithm and tracks the number of page faults during the execution of the reference string.
