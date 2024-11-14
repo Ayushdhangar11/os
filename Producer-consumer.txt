@@ -1,8 +1,3 @@
-EXPERIMENT - 7
-NAME - Ayush Sanjay Dhangar                                                   ROLL NO - 42
-CLASS - TY_IT-A                                                                        BATCH - 2
-DATE OF PERFORMANCE - 24/09/2024
-
 
 Q. Producer-Consumer Problem using Threads and Semaphores
 
@@ -99,18 +94,87 @@ int main() {
 
 
 
-OUTPUT - 
+### Explanation of the Code
 
--------------------------------------------------------------------------------------------------------
+This code solves the **Producer-Consumer Problem** using **threads** and **semaphores**. The goal of this problem is to model a situation where a **producer** produces items and adds them to a **shared buffer**, while a **consumer** consumes (removes) those items. The buffer has limited capacity, and the producer and consumer need to synchronize their access to it to avoid issues like producing items when the buffer is full or consuming items when the buffer is empty.
 
+### Key Concepts Used in the Code:
 
+1. **Threads**:
+   - The code creates two threads: one for the **producer** and one for the **consumer**. These threads run concurrently and access the shared `buffer` and `count`.
 
+2. **Semaphores**:
+   - **Semaphore** is a synchronization tool used to control access to shared resources. The program uses **two semaphores**:
+     - `empty`: This keeps track of the number of empty slots available in the buffer. The producer thread waits (blocks) on this semaphore if there are no empty slots to produce an item.
+     - `full`: This keeps track of the number of full slots in the buffer. The consumer thread waits (blocks) on this semaphore if there are no full slots to consume an item.
+   - **Mutex (Mutual Exclusion)**: The `mutex` is used to ensure that only one thread (either the producer or the consumer) can access and modify the shared buffer at a time, preventing data corruption due to simultaneous access.
 
+### Code Breakdown:
 
+1. **Global Variables**:
+   - `buffer[BUFFER_SIZE]`: The shared buffer where the producer places items and from where the consumer consumes them. The size of the buffer is defined by `BUFFER_SIZE` (5 in this case).
+   - `count`: A variable that keeps track of the number of items in the buffer. It is incremented when an item is produced and decremented when an item is consumed.
 
+2. **Semaphores and Mutex**:
+   - `empty`: Semaphore initialized to `BUFFER_SIZE` (5), representing the number of empty slots available in the buffer.
+   - `full`: Semaphore initialized to `0`, representing the number of full slots available in the buffer.
+   - `mutex`: A mutex to ensure mutual exclusion when accessing and modifying the shared buffer (`buffer` and `count`).
 
+3. **`display_buffer` Function**:
+   - This function displays the current state of the buffer and the number of items in it. It helps in visualizing the buffer's content at each step.
 
+4. **Producer Function** (`producer`):
+   - The producer generates a random number (simulating the production of an item) and tries to place it in the buffer.
+   - **Steps**:
+     1. `sem_wait(&empty)`: The producer waits for an empty slot in the buffer. If the buffer is full, it will block (pause) until there is space.
+     2. `pthread_mutex_lock(&mutex)`: The producer locks the mutex to ensure that only one thread accesses the buffer at a time.
+     3. The producer then adds the item to the buffer and increments `count` (number of items in the buffer).
+     4. `pthread_mutex_unlock(&mutex)`: Unlocks the mutex, allowing other threads to access the buffer.
+     5. `sem_post(&full)`: Signals the consumer that there is now a full slot in the buffer (an item is available to consume).
+   - The producer then sleeps for 1 second and repeats the process 10 times.
 
+5. **Consumer Function** (`consumer`):
+   - The consumer removes an item from the buffer and consumes it (prints the item).
+   - **Steps**:
+     1. `sem_wait(&full)`: The consumer waits for a full slot in the buffer. If the buffer is empty, it will block (pause) until there is an item to consume.
+     2. `pthread_mutex_lock(&mutex)`: The consumer locks the mutex to ensure mutual exclusion when accessing the shared buffer.
+     3. The consumer removes an item from the buffer and decrements `count`.
+     4. `pthread_mutex_unlock(&mutex)`: Unlocks the mutex, allowing other threads to access the buffer.
+     5. `sem_post(&empty)`: Signals the producer that there is now an empty slot in the buffer (an item has been consumed).
+   - The consumer then sleeps for 2 seconds and repeats the process 10 times.
+
+6. **Main Function** (`main`):
+   - **Semaphore Initialization**:
+     - `sem_init(&empty, 0, BUFFER_SIZE)`: Initializes the `empty` semaphore with a value of `BUFFER_SIZE` (5), indicating that all slots are initially empty.
+     - `sem_init(&full, 0, 0)`: Initializes the `full` semaphore with a value of 0, indicating that there are no full slots initially.
+     - `pthread_mutex_init(&mutex, NULL)`: Initializes the mutex.
+   - The producer and consumer threads are created using `pthread_create`.
+   - The `pthread_join` function is used to wait for both the producer and consumer threads to finish their work.
+   - The semaphores and mutex are destroyed using `sem_destroy` and `pthread_mutex_destroy` to clean up system resources.
+
+### OS Concepts Used:
+
+1. **Concurrency**:
+   - The producer and consumer run concurrently in separate threads. The operating system schedules their execution, and they interact with the shared buffer.
+
+2. **Synchronization**:
+   - **Semaphores** (`empty` and `full`): These are used to synchronize the producer and consumer. They help coordinate their actions by ensuring that the producer doesn't try to add an item to a full buffer and that the consumer doesn't try to remove an item from an empty buffer.
+   - **Mutex**: The mutex (`mutex`) ensures mutual exclusion when accessing the shared buffer, preventing race conditions.
+
+3. **Deadlock Prevention**:
+   - The code avoids deadlocks (where threads are blocked indefinitely) by ensuring that semaphores and mutexes are used in a way that prevents circular waiting. The producer and consumer both need access to the buffer but will not block each other forever due to the orderly use of semaphores and mutexes.
+
+4. **Critical Section**:
+   - The critical section is the code that accesses and modifies the shared buffer (`buffer`). Both producer and consumer access this critical section, but only one can do so at a time due to the use of the mutex. This ensures that there is no race condition when modifying the buffer.
+
+5. **Blocking**:
+   - Both the producer and consumer can block (wait) on semaphores. The producer will block if the buffer is full (waiting for an empty slot), and the consumer will block if the buffer is empty (waiting for a full slot).
+
+6. **Thread Management**:
+   - The `pthread_create` and `pthread_join` functions manage the creation and termination of threads. `pthread_create` starts the producer and consumer threads, and `pthread_join` waits for these threads to finish.
+
+### Summary:
+This code implements the **Producer-Consumer Problem** with **threads**, **semaphores**, and **mutexes** to control the synchronization between the producer and consumer processes. The semaphores are used to manage the number of full and empty slots in the shared buffer, and the mutex ensures that only one thread at a time can modify the buffer. The producer and consumer work together by producing and consuming items in a synchronized manner, ensuring that the buffer never overflows or underflows. The operating system manages the threads and ensures proper execution order.
 
 Q . Producer-Consumer Problem using Threads and Mutex
 
@@ -194,8 +258,90 @@ int main() {
     return 0;
 }
 
-OUTPUT - 
+### Explanation of the Code
 
+This code solves the **Producer-Consumer Problem** using **threads**, **mutex**, and **condition variables**. In this problem, a **producer** creates items and places them into a shared buffer, while a **consumer** removes items from the buffer and consumes them. The buffer has a limited capacity, and both threads need to synchronize to ensure the buffer doesn't overflow or underflow.
+
+### Key Concepts Used in the Code:
+
+1. **Threads**:
+   - The code uses two threads: a **producer** thread and a **consumer** thread. These threads run concurrently and access the shared `buffer`.
+
+2. **Mutex (Mutual Exclusion)**:
+   - A **mutex** (`mutex`) is used to ensure that only one thread can access or modify the shared `buffer` at a time. It prevents data corruption due to simultaneous access from both the producer and consumer threads.
+
+3. **Condition Variables**:
+   - **Condition variables** (`cond_empty` and `cond_full`) are used to synchronize the producer and consumer threads based on the state of the buffer (whether it is full or empty). They allow threads to wait for certain conditions and notify each other when those conditions change.
+     - `cond_empty`: This condition variable is used when the buffer is full. The producer waits on it when the buffer is full (i.e., `count == BUFFER_SIZE`).
+     - `cond_full`: This condition variable is used when the buffer is empty. The consumer waits on it when the buffer is empty (i.e., `count == 0`).
+
+### Code Breakdown:
+
+1. **Global Variables**:
+   - `buffer[BUFFER_SIZE]`: The shared buffer where the producer places items and from which the consumer consumes items. The size of the buffer is defined by `BUFFER_SIZE` (5 in this case).
+   - `count`: A variable that tracks the number of items in the buffer. It is incremented when the producer adds an item and decremented when the consumer consumes an item.
+
+2. **Mutex and Condition Variables**:
+   - `pthread_mutex_t mutex`: A mutex to protect access to the shared buffer, ensuring that only one thread (either the producer or consumer) can modify the buffer at any given time.
+   - `pthread_cond_t cond_empty`: A condition variable used to signal when there is space available in the buffer (i.e., when an item has been consumed and space has been freed).
+   - `pthread_cond_t cond_full`: A condition variable used to signal when the buffer has at least one item available (i.e., when an item has been produced and added to the buffer).
+
+3. **Producer Function** (`producer`):
+   - **Steps**:
+     1. The producer generates a random item (`item = rand() % 100`).
+     2. It locks the mutex (`pthread_mutex_lock(&mutex)`) to ensure exclusive access to the buffer.
+     3. If the buffer is full (`count == BUFFER_SIZE`), the producer waits on `cond_empty` using `pthread_cond_wait`. This causes the producer to block (pause) until there is space in the buffer (i.e., the consumer consumes an item).
+     4. The producer adds the item to the buffer and increments `count`.
+     5. It signals the consumer using `pthread_cond_signal(&cond_full)` to indicate that there is an item in the buffer that the consumer can consume.
+     6. The mutex is unlocked (`pthread_mutex_unlock(&mutex)`), allowing other threads to access the buffer.
+   - The producer then sleeps for 1 second (`sleep(1)`) and repeats the process 10 times.
+
+4. **Consumer Function** (`consumer`):
+   - **Steps**:
+     1. The consumer locks the mutex (`pthread_mutex_lock(&mutex)`) to ensure exclusive access to the buffer.
+     2. If the buffer is empty (`count == 0`), the consumer waits on `cond_full` using `pthread_cond_wait`. This causes the consumer to block (pause) until there is at least one item in the buffer (i.e., the producer produces an item).
+     3. The consumer removes an item from the buffer and decrements `count`.
+     4. It signals the producer using `pthread_cond_signal(&cond_empty)` to indicate that there is space in the buffer for the producer to add another item.
+     5. The mutex is unlocked (`pthread_mutex_unlock(&mutex)`), allowing other threads to access the buffer.
+   - The consumer then sleeps for 2 seconds (`sleep(2)`) and repeats the process 10 times.
+
+5. **Main Function** (`main`):
+   - **Initialization**:
+     - The `pthread_mutex_init` function initializes the mutex, and the `pthread_cond_init` functions initialize the two condition variables (`cond_empty` and `cond_full`).
+   - **Thread Creation**:
+     - The `pthread_create` function is used to create the producer and consumer threads.
+   - **Waiting for Threads**:
+     - `pthread_join` is used to wait for both the producer and consumer threads to finish their work.
+   - **Cleanup**:
+     - After the threads finish, `pthread_mutex_destroy` and `pthread_cond_destroy` are called to destroy the mutex and condition variables, releasing any resources they used.
+
+### OS Concepts Used:
+
+1. **Concurrency**:
+   - The producer and consumer run concurrently in separate threads. The operating system schedules their execution and allows them to share resources like the buffer.
+
+2. **Synchronization**:
+   - **Mutex** (`pthread_mutex_t`): The mutex is used to protect the critical section (the shared buffer), ensuring that only one thread can access the buffer at a time. This avoids data corruption due to simultaneous access by multiple threads.
+   - **Condition Variables** (`pthread_cond_t`): The condition variables allow the threads to synchronize based on the state of the buffer. The producer waits if the buffer is full, and the consumer waits if the buffer is empty. These condition variables notify threads when the state changes (e.g., when space becomes available in the buffer or when there is an item to consume).
+
+3. **Deadlock Prevention**:
+   - Deadlock can occur if threads are waiting on each other in a circular dependency. In this case, deadlock is prevented by ensuring that each thread releases the mutex and signals the condition variables in the right order, and there is no circular waiting.
+   - The producer and consumer are designed to wait only when necessary, and they are always signaled by the other thread once the condition changes (space or item availability).
+
+4. **Blocking**:
+   - Both the producer and the consumer can block on the condition variables if they cannot proceed:
+     - The producer blocks when the buffer is full and waits for the consumer to consume an item and make space.
+     - The consumer blocks when the buffer is empty and waits for the producer to produce an item and add it to the buffer.
+   - **`pthread_cond_wait`** is used to block a thread and release the mutex so that other threads can proceed.
+
+5. **Critical Section**:
+   - The critical section is the part of the code where the shared buffer is accessed and modified (i.e., adding an item to the buffer or removing an item from the buffer). The mutex ensures that only one thread can access the critical section at a time, preventing race conditions.
+
+6. **Thread Management**:
+   - **`pthread_create`** and **`pthread_join`** manage the creation and termination of threads. The producer and consumer threads are created, and the main thread waits for them to finish before proceeding with cleanup.
+
+### Summary:
+This code solves the **Producer-Consumer Problem** using **threads**, **mutex**, and **condition variables** for synchronization. The producer adds items to a shared buffer, and the consumer removes items from the buffer. The condition variables help ensure that the producer waits when the buffer is full, and the consumer waits when the buffer is empty. The mutex ensures mutual exclusion when modifying the shared buffer. The operating system handles the scheduling and synchronization of the threads.
 
 
 
