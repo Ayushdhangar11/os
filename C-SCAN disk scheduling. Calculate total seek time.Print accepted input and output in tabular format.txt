@@ -89,3 +89,62 @@ int main() {
 
     return 0;
 }
+
+
+
+
+
+Here is the updated code explanation without the sample output part:
+
+### Explanation of the Code
+
+This program simulates the **C-Scan Disk Scheduling Algorithm**. The goal is to simulate how a disk arm moves to fulfill disk read/write requests while minimizing the seek time. The C-Scan algorithm operates by moving the disk arm in one direction to the end of the disk and then jumping to the other end to continue servicing requests.
+
+#### **Key Functions**
+
+1. **`cScan()` Function**:
+   - **Input**: The function takes in the request sequence `arr`, the initial position of the disk head `head`, and the number of requests `n`.
+   - **Sorting**: First, the request sequence is sorted to determine the order in which requests will be serviced.
+   - **Head Movement**:
+     - The algorithm moves the disk head from its initial position towards the right (highest index), fulfilling the requests in order. After reaching the highest request, the head moves to the end (`max`), then jumps back to the beginning (`min`) and continues servicing any remaining requests.
+   - **Seek Calculation**: The seek time is calculated by accumulating the distance the disk head moves, which is the absolute difference between the current position and the next position.
+   - **Output**: The function prints each movement of the disk head and the total seek time.
+
+2. **`simulateInput()` Function**:
+   - This function simulates random input for the disk requests and initial head position.
+   - **Requests**: It generates a random number of requests (between 5 and 10).
+   - **Request Sequence**: A random sequence of disk request positions between `0` and `199` is generated.
+   - **Initial Head Position**: A random initial head position is also generated between `0` and `199`.
+   - The function prints the generated sequence of requests and the initial head position for visualization.
+
+3. **`main()` Function**:
+   - **Input Simulation**: Calls `simulateInput()` to generate random disk requests and initial head position.
+   - **Accepted Input**: It displays the generated request sequence and the initial head position.
+   - **Disk Scheduling**: The head position is added to the request list, and the `cScan()` function is called to compute the total seek time and movement details.
+   - **Output**: It displays the request sequence, initial head position, and detailed head movements along with the total seek time using the C-Scan algorithm.
+
+#### **Algorithm Walkthrough**:
+
+1. **Initial Setup**: The request sequence and the initial head position are generated randomly.
+2. **Sorting**: The request sequence is sorted in ascending order.
+3. **Head Movement**:
+   - The head moves from its current position towards the highest request in the list, reaching the `max` value (199).
+   - After reaching the maximum, the head jumps to the minimum (0) and continues servicing requests.
+4. **Seek Time Calculation**: The distance moved by the head between each request is summed to calculate the total seek time.
+
+#### **Concepts Involved**:
+1. **C-Scan Disk Scheduling Algorithm**:
+   - This algorithm is used for efficient disk scheduling, where the disk head moves in one direction (from `min` to `max`), servicing requests along the way. Once it reaches the `max`, it jumps back to `min` and continues servicing the remaining requests.
+   
+2. **Sorting**:
+   - Sorting the request sequence ensures that the requests are processed in an orderly manner, from the lowest to the highest position.
+   
+3. **Seek Time Calculation**:
+   - Seek time is the time it takes for the disk arm (head) to move to the required position. The seek time is computed as the sum of absolute differences between consecutive positions of the head.
+
+4. **Random Number Generation**:
+   - Random numbers are generated using `std::rand()` to simulate the disk requests and initial head position.
+
+### Summary:
+
+This program simulates a disk scheduling scenario using the **C-Scan algorithm**. It generates random disk requests, processes them using the algorithm, and computes the total seek time. The output shows how the disk head moves to service requests and the total time taken for all movements.
