@@ -206,3 +206,36 @@ int main() {
 
     return 0;
 }
+
+This program demonstrates matrix operations (addition, subtraction, and multiplication) using multithreading in C. Here’s a breakdown of each part:
+
+### 1. **Initialization of Matrices**
+   - The `initializeMatrices` function populates `matrixA` and `matrixB` with predefined values.
+   - These matrices are of size 3x3, as defined by `numRows` and `numCols`.
+
+### 2. **Operations: Addition, Subtraction, Multiplication**
+   - Each operation has a separate function (`matrixAdd`, `matrixSubtract`, and `matrixMultiply`) that uses threads to handle rows of the result matrix.
+   - Each thread computes a portion of the matrix by working on a specific range of rows, calculated using `startRow` and `endRow`.
+
+### 3. **Thread Creation**
+   - Threads are created in the `main` function based on the selected operation. Each thread executes the assigned function (either addition, subtraction, or multiplication).
+   - Thread IDs are dynamically allocated to prevent data races.
+
+### 4. **Operation Selection and Execution**
+   - The program performs addition, subtraction, and multiplication in sequence.
+   - For each operation:
+     1. The respective function pointer is set (e.g., `operationFunction = matrixAdd`).
+     2. Threads are created to perform the calculation.
+     3. The result matrix is printed after all threads complete.
+
+### 5. **Output of Result**
+   - The `printMatrix` function displays the matrix resulting from each operation.
+
+This program showcases the basics of using pthreads in C to perform parallel computations across different threads, distributing tasks efficiently for each matrix operation.
+
+This program uses pthreads to perform matrix operations (addition, subtraction, multiplication) in parallel. Here's a brief on the pthread concepts involved:
+
+Threads: Threads are smaller units of a process that run independently and share resources, allowing multiple tasks to be executed simultaneously.
+Creating Threads: pthread_create starts new threads for matrix operations. Each thread receives a unique ID and uses it to compute which rows to process, dividing work row-wise.
+Passing Arguments: Each thread is given an ID as an argument, determining its range of rows in the matrix.
+Waiting for Threads: pthread_join ensures the main program waits for all threads to complete their tasks before printing the final matrix.
