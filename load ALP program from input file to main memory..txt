@@ -49,3 +49,48 @@ int main() {
 
     return 0;
 }
+
+
+
+### Explanation of the Code
+
+1. **Function `loadALPFromFile`**:
+   - **Parameters**: This function takes an input file (`inputFile`) and an optional memory size (`memorySize`) which defaults to 1024.
+   - **Memory Allocation**: A vector `memory` of size `memorySize` is initialized, with all elements set to `0`, representing the main memory.
+   - **File Reading**: It attempts to open the input file for reading. If the file cannot be opened (e.g., the file doesn't exist), it prints an error message and returns the empty memory.
+   - **Loading ALP**: The program reads the file line by line. Each line is expected to contain an integer, which is then stored in the `memory` vector at the index corresponding to the line number. If a line contains an invalid value (non-integer), an error message is printed, and the function returns the memory loaded so far.
+   - **Closing File**: Once the file has been read, it is closed, and the `memory` vector is returned.
+
+2. **`main` Function**:
+   - The function calls `loadALPFromFile` with the file `"input_alp.txt"` and stores the result in `mainMemory`.
+   - Then it prints the contents of the `mainMemory` vector, showing the loaded ALP program or the error state if something went wrong.
+
+### Operating System Concepts Used
+
+1. **Main Memory Simulation**:
+   - The code simulates loading an ALP (Assembly Language Program) into memory. In an operating system, programs are loaded into main memory to be executed by the CPU. This code mimics that process by reading an ALP from a file and storing it in a vector, which represents the memory.
+
+2. **File I/O**:
+   - The program uses file input/output (`ifstream`) to read the ALP from a text file. In an OS, programs often rely on file I/O for input data, configuration, or program loading.
+
+3. **Error Handling**:
+   - The program handles two types of errors: if the file cannot be opened and if the contents of the file are not valid integers. In an OS, error handling is crucial for managing file operations and ensuring that the system continues to run smoothly even in the presence of faults.
+
+4. **Memory Management**:
+   - The program uses a vector to represent main memory, which is dynamically allocated. In an OS, memory management involves allocating and freeing memory for processes or tasks. This example simulates a simple form of memory allocation where the memory size is fixed, and data is loaded into it.
+
+### Summary of Theory
+
+1. **Main Memory and ALP Loading**:
+   - Main memory is where a program's code and data are stored during execution. This program simulates the loading of an Assembly Language Program (ALP) into memory from a file.
+
+2. **File Input/Output**:
+   - File I/O is fundamental in operating systems to read from and write to external files. In this case, the program reads ALP instructions stored in a file and loads them into memory.
+
+3. **Error Handling**:
+   - Proper error handling ensures that the program can recover or inform the user when something goes wrong, such as file not found or invalid data. This is an essential aspect of OS reliability.
+
+4. **Memory Management**:
+   - In operating systems, memory management handles the allocation, usage, and deallocation of memory for programs. The code uses a vector as a simple representation of memory, with data (ALP instructions) loaded into it.
+
+This code demonstrates the process of loading a program from a file into memory, along with basic error handling, simulating some aspects of how operating systems manage program loading and memory allocation.
