@@ -55,3 +55,8 @@ Following are some of the options for grep -i ignore case for matching
 -f file take patterns from file
 -E treat pattern as an extended reg. exp -F matches multiple fixed strings (fgrep).    grep -ow "yourstring“
 grep -w "search_word" text_file grep -P '^(tomcat!?)' tst1.txt.
+
+
+chmod u+x filename    # Add execute permission for the user/owner
+chmod go-w filename    # Remove write permission for group and others
+chmod a=r filename     # Set read-only permission for everyone
