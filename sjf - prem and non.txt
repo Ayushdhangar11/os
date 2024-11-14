@@ -132,3 +132,135 @@
  displayResults  (  processes  ,  n  ); 
  return  0  ; 
  } 
+
+Certainly! Here’s a more detailed explanation of how the **Shortest Job First (SJF)** scheduling algorithm is implemented in your code, without repeating the code itself:
+
+### 1. **Struct Definition (`struct Process`):**
+
+The `struct Process` is used to represent each process in the system. It contains the following members:
+
+- `pid`: Process ID, a unique identifier for each process.
+- `arrivalTime`: The time at which the process arrives in the ready queue.
+- `burstTime`: The total execution time required by the process.
+- `remainingTime`: This field is specifically for **preemptive SJF** to keep track of the remaining time that the process still needs to execute. Initially, this is set to the `burstTime`.
+- `finishTime`: The time at which the process finishes its execution.
+- `turnAroundTime`: The total time spent from the arrival of the process to its completion (Turnaround Time = Finish Time - Arrival Time).
+- `waitingTime`: The time a process spends waiting in the ready queue before it starts execution (Waiting Time = Turnaround Time - Burst Time).
+- `isCompleted`: A boolean flag indicating whether the process has completed execution.
+
+---
+
+### 2. **Non-Preemptive SJF (`sjfNonPreemptive` function):**
+
+The `sjfNonPreemptive` function implements the **Non-Preemptive SJF** scheduling algorithm. Here’s how it works:
+
+- **Initialization**: 
+  - `currentTime` starts at 0, which keeps track of the current time during the scheduling.
+  - `completed` tracks how many processes have been completed.
+
+- **Main Loop**: 
+  - The loop continues until all processes are completed.
+  - Within the loop:
+    - It searches for the process with the **smallest burst time** that has **already arrived** (i.e., `arrivalTime <= currentTime`) and has not completed yet (`!isCompleted`).
+    - This is done by iterating over all processes and comparing their burst times.
+    - If no process is found that has arrived, `currentTime` is incremented by 1, meaning the system is idle.
+    
+- **Process Execution**:
+  - Once the shortest burst time process is found, it is selected for execution.
+  - The finish time for the process is calculated as the current time plus its burst time (`currentTime + burstTime`).
+  - The **Turnaround Time** and **Waiting Time** are computed for this process:
+    - Turnaround Time = Finish Time - Arrival Time.
+    - Waiting Time = Turnaround Time - Burst Time.
+  - The process is marked as completed (`isCompleted = true`), and the `currentTime` is updated to reflect the finish time of this process.
+  - The `completed` counter is incremented.
+
+This continues until all processes are completed.
+
+---
+
+### 3. **Preemptive SJF (`sjfPreemptive` function):**
+
+The `sjfPreemptive` function implements the **Preemptive SJF** (or **Shortest Remaining Time First, SRTF**) algorithm. It works similarly to the Non-Preemptive SJF with key differences related to process preemption:
+
+- **Initialization**:
+  - `currentTime` is initialized to 0.
+  - `completed` keeps track of how many processes have completed.
+  - `minRemainingTime` is initialized to a very large value (1e9), which will be used to track the process with the smallest remaining burst time.
+
+- **Main Loop**:
+  - The loop runs until all processes are completed.
+  - It iterates over all processes to find the process with the **smallest remaining burst time** that has already arrived (`arrivalTime <= currentTime`) and is not completed yet (`!isCompleted`).
+  - If no such process is found, `currentTime` is incremented (indicating that the CPU is idle).
+  
+- **Process Execution**:
+  - Once the process with the smallest remaining burst time is found, it is selected for execution.
+  - The **remaining time** for this process is decreased by 1 (indicating that the process has executed for one unit of time).
+  - `currentTime` is incremented to simulate the passage of time.
+  
+- **Process Completion**:
+  - If the remaining time of the process becomes zero, it is considered completed.
+  - The **Finish Time**, **Turnaround Time**, and **Waiting Time** are calculated for this process in the same manner as in Non-Preemptive SJF.
+  - The process is marked as completed (`isCompleted = true`), and the `completed` counter is incremented.
+  
+  - If the process hasn't yet completed, the loop continues to check for the next shortest process.
+
+This continues until all processes are completed, with preemptions possible when a process with a smaller remaining burst time arrives.
+
+---
+
+### 4. **Display Results (`displayResults` function):**
+
+After the scheduling is completed, the `displayResults` function is used to print the results of the scheduling algorithm.
+
+- **Displaying Metrics**: 
+  - The function first prints the process details including `PID`, `Arrival Time`, `Burst Time`, `Finish Time`, `Turnaround Time`, and `Waiting Time`.
+  - It then calculates the **average Turnaround Time** and **average Waiting Time** by summing up the values for all processes and dividing by the number of processes.
+
+- **Output**: 
+  - The results are displayed in a table format, followed by the averages for turnaround and waiting times.
+
+---
+
+### 5. **Main Function (`main`):**
+
+The `main` function is the entry point of the program:
+
+- **Input**: 
+  - The user is prompted to enter the number of processes `n`.
+  - The program then asks for the arrival time and burst time of each process. The `remainingTime` for each process is initialized to be the same as the `burstTime` for preemptive SJF.
+
+- **Choice of Scheduling**: 
+  - The user is asked to choose between **Non-Preemptive SJF** (option 1) or **Preemptive SJF** (option 2).
+  - Based on the choice, the corresponding scheduling function (`sjfNonPreemptive` or `sjfPreemptive`) is called.
+
+- **Displaying Results**: 
+  - After the scheduling is completed, the `displayResults` function is called to display the process details and the average waiting and turnaround times.
+
+---
+
+### Summary of the Two SJF Types in the Code:
+
+1. **Non-Preemptive SJF**:
+   - Selects the process with the shortest burst time that has already arrived and executes it to completion without interruption.
+   - If no process has arrived, it increments `currentTime`.
+
+2. **Preemptive SJF (SRTF)**:
+   - Selects the process with the smallest remaining burst time.
+   - The process can be preempted if a new process arrives with a shorter remaining time.
+   - Decreases the remaining burst time of the running process and continues until all processes are completed.
+
+Both algorithms aim to minimize the average waiting time and turnaround time by giving priority to processes that need the least execution time.
+
+Theory Behind Shortest Job First (SJF) Scheduling:
+SJF is a scheduling algorithm where the process with the smallest burst time (execution time) is selected to execute next. It is designed to minimize the average waiting time and turnaround time. There are two types of SJF scheduling:
+
+Non-Preemptive SJF: Once a process starts executing, it runs to completion. If two or more processes arrive at the same time, the one with the smallest burst time is chosen.
+Preemptive SJF (also known as Shortest Remaining Time First (SRTF)): The process that has the smallest remaining burst time is chosen for execution. If a new process arrives with a smaller burst time than the currently executing process, the CPU is preempted, and the new process is executed.
+Key Terms:
+
+Arrival Time: The time at which a process enters the ready queue.
+Burst Time: The total time required by a process for its execution.
+Waiting Time: The total time a process spends waiting in the ready queue before it gets executed.
+Turnaround Time: The total time from the arrival of the process to its completion (Turnaround Time = Finish Time - Arrival Time).
+Completion Time: The time when the process finishes executing.
+Remaining Time: In the case of preemptive SJF, it represents the remaining burst time for a process that hasn't finished yet.
