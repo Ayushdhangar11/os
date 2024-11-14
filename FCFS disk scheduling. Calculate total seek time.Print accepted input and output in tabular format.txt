@@ -75,3 +75,75 @@ int main() {
 
     return 0;
 }
+
+
+
+Here’s the revised explanation with the formulas in text format:
+
+### Detailed Code Explanation:
+
+#### **1. `calculateFCFSDiskScheduling()` Function**:
+This function calculates the total seek time for the disk scheduling algorithm using **First-Come, First-Served (FCFS)**. FCFS processes the requests in the order they arrive.
+
+- **Input**:
+  - `requests`: A vector that contains the disk request sequence.
+  - `initialHeadPosition`: The starting position of the disk arm (head).
+  
+- **Output**:
+  - `totalSeekTime`: The total time taken by the disk arm to process all requests.
+
+- **Working**:
+  - The function initializes the `totalSeekTime` and `currentPosition` variables.
+  - It prints a header for the table that will display the details of each request.
+  - The function iterates over each request in the sequence:
+    - It calculates the **seek time** for each request as the absolute difference between the `currentPosition` and the request.
+    - It prints the request number, the current head position, and the seek time for that request in tabular format.
+    - It updates the `currentPosition` to the current request’s position after servicing the request.
+  - The total seek time is accumulated and returned.
+
+#### **2. `simulateInput()` Function**:
+This function simulates random input for the disk scheduling algorithm. It generates random values for the number of requests, the request sequence, and the initial head position.
+
+- **Working**:
+  - **Random Number of Requests**: The number of disk requests (`n`) is randomly chosen between 5 and 10.
+  - **Random Request Sequence**: Random disk request values (between 0 and 199) are generated and stored in the `requests` vector.
+  - **Random Initial Head Position**: A random initial position for the disk arm is chosen between 0 and 199.
+  - The generated values are printed to the console for display.
+
+#### **3. `main()` Function**:
+The main function coordinates the program by calling the input simulation and disk scheduling functions, then displaying the results.
+
+- **Simulate Input**: It first calls `simulateInput()` to generate the random disk request sequence and the initial head position.
+- **Display Input**: It displays the accepted input in a readable format (the request sequence and the initial head position).
+- **Calculate Seek Time**: It calls `calculateFCFSDiskScheduling()` to compute the total seek time and print the details in tabular format for each request.
+- **Total Seek Time**: The program prints the final total seek time, which is the sum of the seek times for each request.
+
+### Theoretical Explanation of FCFS Disk Scheduling:
+
+**First-Come, First-Served (FCFS)** is a simple disk scheduling algorithm where requests are processed in the order in which they arrive. The disk arm moves from one track to the next, servicing the requests sequentially. This algorithm does not take into account the distance between requests, which can lead to suboptimal performance.
+
+#### **Advantages**:
+- **Simplicity**: The FCFS algorithm is straightforward and easy to implement.
+- **Fairness**: Each request is treated equally in the order it arrives.
+
+#### **Disadvantages**:
+- **Suboptimal Seek Time**: FCFS does not optimize seek time, and if requests are scattered across the disk, the disk arm may have to travel long distances, resulting in high total seek time.
+- **No Consideration of Request Location**: Since FCFS processes requests in the order they arrive, it may result in inefficient movement of the disk arm, especially if requests are far apart.
+
+#### **Seek Time Calculation**:
+The **seek time** is calculated as the absolute distance between the current head position and the requested track position. In text format, the formula is:
+
+**Seek Time = | Current Head Position - Request Position |**
+
+The **total seek time** is the sum of the seek times for all requests, which can be written as:
+
+**Total Seek Time = Σ (Seek Time for Each Request)**
+
+This total seek time reflects the efficiency of the disk arm's movement and the effectiveness of the scheduling algorithm.
+
+#### **Comparison with Other Scheduling Algorithms**:
+- **FCFS vs. SSTF (Shortest Seek Time First)**: Unlike FCFS, SSTF selects the request closest to the current head position, which often results in lower total seek times. However, it can cause starvation, where distant requests may never be processed if closer requests keep arriving.
+- **FCFS vs. SCAN**: The SCAN algorithm moves the disk arm in one direction, servicing requests along the way until it reaches the end of the disk, then reverses direction. SCAN is more efficient than FCFS in many cases, as it minimizes unnecessary back-and-forth movement.
+
+### Conclusion:
+The FCFS algorithm is simple and easy to implement, but it may not be the most efficient in terms of total seek time, especially when disk requests are widely scattered. Understanding its performance and limitations can help in selecting the appropriate disk scheduling algorithm based on the specific workload and disk access patterns.
