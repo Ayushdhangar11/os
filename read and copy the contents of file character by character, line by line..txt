@@ -44,3 +44,51 @@ int main() {
     copyFile("source_file.txt", "destination_file.txt");
     return 0;
 }
+
+
+
+Here is an explanation of the code you provided:
+
+### Code Overview
+
+1. **Include Necessary Headers**:
+   - `#include <iostream>`: For input/output operations.
+   - `#include <fstream>`: For file input/output operations.
+   - `#include <string>`: For string manipulation.
+
+2. **Function `copyFile`**:
+   - **Parameters**: This function accepts two parameters, `sourceFile` and `destinationFile`, which are the paths of the source file (from which contents are read) and the destination file (to which contents are written).
+   - **File Opening**: 
+     - The source file is opened in read mode (`std::ios::in`).
+     - The destination file is opened in write mode (`std::ios::out`).
+   - **Error Handling**:
+     - The program checks whether both files were successfully opened using `is_open()`. If either file fails to open, an error message is displayed, and the function returns.
+   - **File Copying**:
+     - The program reads the source file line by line using `std::getline(src, line)`.
+     - For each line, it copies each character to the destination file using a `for` loop.
+     - After copying all characters of a line, a newline character (`\n`) is written to maintain the line breaks in the destination file.
+   - **File Closing**: Both the source and destination files are closed with `close()` to ensure all data is written and resources are freed.
+   - **Completion Message**: A message is displayed indicating the file copy is complete.
+
+3. **`main` Function**:
+   - The `main` function simply calls the `copyFile` function with the source and destination file names (`"source_file.txt"` and `"destination_file.txt"` in this case).
+
+### Key Concepts Used
+
+1. **File Input and Output**:
+   - **File Reading**: The program uses `std::ifstream` to open the source file for reading.
+   - **File Writing**: The program uses `std::ofstream` to open the destination file for writing.
+   - **Error Handling**: If either file fails to open, an error message is displayed using `std::cerr`, which is the standard error stream.
+
+2. **Character-by-Character Copy**:
+   - The program reads the file character by character. This approach is done by iterating through each line, then copying each character individually from the source to the destination file.
+
+3. **Line-by-Line Copy**:
+   - The program copies the file line by line using `std::getline()`. After copying each line, it writes a newline character (`\n`) to ensure the line structure of the original file is preserved.
+
+4. **Resource Management**:
+   - The program closes both the source and destination files after copying the content to ensure proper file handling and release of system resources.
+
+### Summary
+
+This program reads the contents of a source file character by character, line by line, and copies the contents to a destination file. It uses basic file I/O operations and error handling, ensuring that both files are properly opened and closed. The program preserves the line breaks from the source file in the destination file.
