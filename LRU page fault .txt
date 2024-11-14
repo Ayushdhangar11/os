@@ -1,0 +1,166 @@
+
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+int main() {
+    int i, j, f, pf = 0;
+    // Hardcoded reference string and frame size
+    vector<int> rs = {7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 3};
+    int n = rs.size();  // Length of the reference string
+    f = 3;  // Number of frames
+
+    // Frames and age arrays
+    vector<int> frame(f, -1);
+    vector<int> age(f, 0);
+
+    cout << "\nThe Page Replacement Process is -- \n";
+    for (i = 0; i < n; i++) {
+        cout << rs[i] << "\t";
+        int found = 0;
+
+        // Check if the page is already in one of the frames
+        for (j = 0; j < f; j++) {
+            if (frame[j] == rs[i]) {
+                age[j] = 0;  // Reset the age for the used frame
+                found = 1;  // No page fault
+                break;
+            }
+        }
+
+        if (!found) {  // Page fault
+            int flag = 0;  // Flag to check if there's an empty frame
+            for (j = 0; j < f; j++) {
+                if (frame[j] == -1) {
+                    frame[j] = rs[i];
+                    age[j] = 0;
+                    flag = 1;  // Empty frame found
+                    break;
+                }
+            }
+
+            if (flag == 0) {  // No empty frame available
+                // Perform LRU replacement
+                int max_age = age[0];
+                int max_age_index = 0;
+                for (j = 1; j < f; j++) {
+                    if (age[j] > max_age) {
+                        max_age = age[j];
+                        max_age_index = j;
+                    }
+                }
+                frame[max_age_index] = rs[i];
+                age[max_age_index] = 0;
+            }
+
+            pf++;  // Increment page fault count
+        }
+
+        // Display the frames and the current page fault number
+        for (j = 0; j < f; j++) {
+            cout << "\t" << frame[j];
+            age[j]++;  // Increment the age of each frame
+        }
+
+        if (!found) {
+            cout << "\t\t\tPF No. " << pf;
+        }
+
+        cout << "\n";
+    }
+
+    cout << "\nThe number of Page Faults using LRU are " << pf << endl;
+
+    return 0;
+}
+
+### Explanation of the Code
+
+This C++ program simulates the **Least Recently Used (LRU)** page replacement algorithm, which is a type of **page replacement** strategy used in operating systems to manage memory. The purpose of this program is to calculate the number of **page faults** during the execution of a series of page references, given a fixed number of memory frames.
+
+### Key Concepts in Operating Systems (OS)
+
+1. **Page Fault**:
+   - A **page fault** occurs when a program tries to access a page that is not currently in memory. When this happens, the operating system must load the page from secondary storage (e.g., disk) into memory. Each page fault incurs an overhead since disk I/O is slower than accessing memory.
+
+2. **Page Replacement Algorithms**:
+   - **Page replacement** is required when a process accesses a page that is not in memory, and the memory is full. The operating system must decide which page to replace.
+   - **LRU (Least Recently Used)** is a popular page replacement algorithm where the operating system evicts the page that has not been used for the longest period of time. This method assumes that pages that have been used recently are more likely to be used again in the near future.
+
+3. **Memory Frames**:
+   - Memory is divided into fixed-size blocks called **frames**. Each frame can hold one page of a process. The number of frames is limited by the size of the physical memory.
+
+4. **Reference String**:
+   - The **reference string** represents a sequence of memory accesses made by a process. Each element in the reference string corresponds to a page number that the process tries to access.
+
+### Data Structures Used in the Code
+
+1. **frame (vector<int>)**:
+   - This array (vector) simulates the **frames** in memory. Initially, it is set to -1 to indicate that the frames are empty.
+   
+2. **age (vector<int>)**:
+   - This array keeps track of the **age** of the pages in memory. The age represents how long it has been since a page was last accessed. The page with the highest age will be replaced by the next page during a page fault in LRU.
+
+3. **rs (vector<int>)**:
+   - This is the **reference string** (hardcoded in the program), which is a sequence of page numbers that the process tries to access.
+
+4. **pf (int)**:
+   - This variable keeps count of the number of **page faults** that occur during the execution of the reference string.
+
+### Code Walkthrough
+
+1. **Input**:
+   - The reference string (`rs`) is hardcoded in the program as `{7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 3}`.
+   - The number of frames (`f`) is also hardcoded as 3, meaning the program simulates a memory system with 3 frames.
+
+2. **Page Replacement Process**:
+   - The program iterates through each page in the reference string and checks if that page is already loaded into memory (i.e., whether the page is present in the `frame` array).
+   
+   - If the page is **found in memory**, it is marked, and the **age** for that page is reset to 0, indicating that it was just used.
+   
+   - If the page is **not found** in memory (i.e., a **page fault** occurs):
+     - First, the program checks if there are any empty frames. If an empty frame is available, the new page is simply inserted into that frame, and the **age** is reset to 0.
+     - If there are no empty frames available, the program must replace a page. It uses the **LRU algorithm** to find the page with the highest age (i.e., the least recently used page) and replaces it with the new page. The **age** for the replaced page is reset to 0, and the age of all other pages is incremented.
+
+3. **Displaying the Frames and Page Faults**:
+   - After each page reference, the program displays the current contents of the frames.
+   - If a page fault occurs, the program also displays the current **page fault number**.
+   - The **age** of all pages is incremented after each iteration, tracking how long it has been since each page was last used.
+
+4. **Final Output**:
+   - After processing the entire reference string, the program outputs the total number of **page faults** that occurred during the simulation.
+
+### Example Walkthrough
+
+Given the reference string `{7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 3}` and 3 frames:
+
+- **Step 1**: First, the page `7` is not in the frames, so it causes a **page fault**. It is added to the first available frame.
+  
+- **Step 2**: The page `0` is not in memory, causing another page fault. It replaces the next available frame.
+
+- **Step 3**: The page `1` is not in memory, so it replaces the next available frame.
+
+- **Step 4**: When the page `2` is accessed, the program finds that all frames are full, so it applies the **LRU** algorithm. Since `7` is the least recently used page, it is replaced by `2`.
+
+This process continues for all pages in the reference string.
+
+### Theory Behind the LRU Page Replacement Algorithm
+
+**LRU (Least Recently Used)** is based on the assumption that pages that have been used recently are more likely to be used again in the near future. The core idea is to keep track of the order in which pages are accessed and always remove the least recently used page when a page fault occurs and no free frames are available.
+
+In this program, the **age array** helps simulate the LRU algorithm. Every time a page is accessed, its corresponding **age** is reset to 0. The age of other pages is incremented to indicate that they have not been used recently. The page with the highest age (i.e., the one that has not been accessed for the longest time) is replaced when a page fault occurs and memory is full.
+
+### Advantages and Disadvantages of LRU
+
+**Advantages**:
+- **Efficient in terms of predictions**: LRU is a relatively good approximation for which page is least likely to be accessed in the future, making it more efficient than simple algorithms like FIFO (First-In-First-Out).
+
+**Disadvantages**:
+- **Complexity**: LRU requires keeping track of the order of accesses, which can introduce overhead. In practical implementations, sophisticated data structures like linked lists or counters are often used to track the ages efficiently.
+- **Belady’s Anomaly**: In some rare cases, LRU might not be the best algorithm for minimizing page faults, as it does not always guarantee an optimal solution in all scenarios.
+
+### Conclusion
+
+The program demonstrates the **LRU page replacement** algorithm, which helps to manage memory effectively by replacing the least recently used pages in the case of a page fault. While the algorithm is straightforward and reasonably effective, its performance can be impacted by the complexity of maintaining the order of page usage.
