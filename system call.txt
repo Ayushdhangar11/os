@@ -189,3 +189,26 @@ int main() {
     exit(0);
 }
 
+This code demonstrates various Linux system calls to handle processes, files, communication, and system information. Here’s a quick breakdown:
+
+### 1. **Process-Related System Calls (`process_menu`)**
+- **`fork`**: Creates a new process. The parent gets the child’s PID; the child gets 0.
+- **`exit`**: Ends a process (used to end the child).
+- **`wait`**: Parent waits for the child process to complete.
+
+### 2. **File-Related System Calls (`file_menu`)**
+- **`open`**: Opens/creates a file (`example.txt`).
+- **`read`** and **`write`**: Reads from and writes to the file.
+- **`close`**: Closes the file.
+- **`link`** and **`unlink`**: Creates a link to a file and deletes it.
+- **`stat`**: Gets file info (size, links).
+
+### 3. **Communication System Calls (`communication_menu`)**
+- **`pipe`**: Allows parent and child to communicate by writing to and reading from opposite ends.
+- **`mkfifo`**: Creates a FIFO (named pipe) for communication between unrelated processes.
+
+### 4. **Information System Calls (`info_menu`)**
+- Retrieves IDs of the current process (`getpid`), parent (`getppid`), user (`getuid`), and group (`getgid`). 
+
+Each function showcases specific system calls and how they’re used in process management, file handling, and inter-process communication.
+
