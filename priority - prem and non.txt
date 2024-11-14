@@ -1,186 +1,128 @@
-﻿Non - preem
-
-
-#include <iostream>
-#include <vector>
-#include <algorithm>
-#include <climits>
-
-
-using namespace std;
-
-
-struct Process {
-    int pid;             // Process ID
-    int arrivalTime;     // Arrival Time of process
-    int burstTime;       // Burst Time of process
-    int priority;        // Priority of process (lower number means higher priority)
-    int finishTime;      // Finish Time of process
-    int turnaroundTime;  // Turnaround Time of process
-    int waitingTime;     // Waiting Time of process
-    bool completed = false; // Status to mark completion
-};
-
-
-void calculateNonPreemptivePriority(vector<Process>& processes) {
-    int currentTime = 0;
-    int completedProcesses = 0;
-    int n = processes.size();
-
-
-    while (completedProcesses < n) {
-        int highestPriorityIndex = -1;
-        int highestPriority = INT_MAX;
-
-
-        // Find the process with the highest priority among those that have arrived
-        for (int i = 0; i < n; i++) {
-            if (!processes[i].completed && processes[i].arrivalTime <= currentTime && processes[i].priority < highestPriority) {
-                highestPriorityIndex = i;
-                highestPriority = processes[i].priority;
-            }
-        }
-
-
-        if (highestPriorityIndex != -1) {
-            currentTime += processes[highestPriorityIndex].burstTime;
-            processes[highestPriorityIndex].finishTime = currentTime;
-            processes[highestPriorityIndex].turnaroundTime = processes[highestPriorityIndex].finishTime - processes[highestPriorityIndex].arrivalTime;
-            processes[highestPriorityIndex].waitingTime = processes[highestPriorityIndex].turnaroundTime - processes[highestPriorityIndex].burstTime;
-            processes[highestPriorityIndex].completed = true;
-            completedProcesses++;
-        } else {
-            currentTime++;
-        }
-    }
-}
-
-
-void displayResults(const vector<Process>& processes) {
-    cout << "PID\tArrival\tBurst\tPriority\tFinish\tTurnaround\tWaiting\n";
-    for (const auto& process : processes) {
-        cout << process.pid << "\t"
-             << process.arrivalTime << "\t"
-             << process.burstTime << "\t"
-             << process.priority << "\t\t"
-             << process.finishTime << "\t"
-             << process.turnaroundTime << "\t\t"
-             << process.waitingTime << endl;
-    }
-}
-
-
-int main() {
-    int n;
-    cout << "Enter the number of processes: ";
-    cin >> n;
-
-
-    vector<Process> processes(n);
-    for (int i = 0; i < n; i++) {
-        processes[i].pid = i + 1;
-        cout << "Enter Arrival Time, Burst Time and Priority for Process " << processes[i].pid << ": ";
-        cin >> processes[i].arrivalTime >> processes[i].burstTime >> processes[i].priority;
-    }
-
-
-    calculateNonPreemptivePriority(processes);
-
-
-    cout << "\nNon-Preemptive Priority Scheduling Results:\n";
-    displayResults(processes);
-
-
-    return 0;
-}
-
-
-Prem -
-#include <iostream>
-#include <vector>
-#include <algorithm>
-#include <climits>
-
-
-using namespace std;
-
-
-struct Process {
-    int pid;             // Process ID
-    int arrivalTime;     // Arrival Time of process
-    int burstTime;       // Burst Time of process
-    int remainingTime;   // Remaining time for preemptive scheduling
-    int priority;        // Priority of process (lower number means higher priority)
-    int finishTime;      // Finish Time of process
-    int turnaroundTime;  // Turnaround Time of process
-    int waitingTime;     // Waiting Time of process
-};
-
-
-// Function to calculate times using Preemptive Priority Scheduling
-void calculatePreemptivePriority(vector<Process>& processes) {
-    int currentTime = 0;
-    int completedProcesses = 0;
-    int n = processes.size();
-
-
-    for (auto& process : processes) {
-        process.remainingTime = process.burstTime;
-    }
-
-
-    while (completedProcesses < n) {
-        int highestPriorityIndex = -1;
-        int highestPriority = INT_MAX;
-
-
-        // Find the process with the highest priority among those that have arrived
-        for (int i = 0; i < n; i++) {
-            if (processes[i].arrivalTime <= currentTime && processes[i].remainingTime > 0 && processes[i].priority < highestPriority) {
-                highestPriorityIndex = i;
-                highestPriority = processes[i].priority;
-            }
-        }
-
-
-        if (highestPriorityIndex != -1) {
-            processes[highestPriorityIndex].remainingTime--;
-            currentTime++;
-
-
-            if (processes[highestPriorityIndex].remainingTime == 0) {
-                processes[highestPriorityIndex].finishTime = currentTime;
-                processes[highestPriorityIndex].turnaroundTime = processes[highestPriorityIndex].finishTime - processes[highestPriorityIndex].arrivalTime;
-                processes[highestPriorityIndex].waitingTime = processes[highestPriorityIndex].turnaroundTime - processes[highestPriorityIndex].burstTime;
-                completedProcesses++;
-            }
-        } else {
-            currentTime++;
-        }
-    }
-}
-
-
-int main() {
-    int n;
-    cout << "Enter the number of processes: ";
-    cin >> n;
-
-
-    vector<Process> processes(n);
-    for (int i = 0; i < n; i++) {
-        processes[i].pid = i + 1;
-        cout << "Enter Arrival Time, Burst Time and Priority for Process " << processes[i].pid << ": ";
-        cin >> processes[i].arrivalTime >> processes[i].burstTime >> processes[i].priority;
-    }
-
-
-    calculatePreemptivePriority(processes);
-
-
-    cout << "\nPreemptive Priority Scheduling Results:\n";
-    displayResults(processes);
-
-
-    return 0;
-}
+#include  <stdbool.h> 
+ struct  Process  { 
+ int  pid  ;  // Process ID 
+ int  arrivalTime  ; 
+ int  burstTime  ; 
+ int  remainingTime  ;  // For preemptive scheduling 
+ int  priority  ; 
+ int  finishTime  ; 
+ int  turnAroundTime  ; 
+ int  waitingTime  ; 
+ bool  isCompleted  ; 
+ }; 
+ // Function for Non-Preemptive Priority Scheduling 
+ void  priorityNonPreemptive  (  struct  Process  processes  []  ,  int 
+ n  ) { 
+ int  currentTime  =  0  ,  completed  =  0  ; 
+ while  (  completed  <  n  ) { 
+ int  minIndex  =  -  1  ; 
+ int  highestPriority  =  1e9  ; 
+ // Select the process with the highest priority that has arrived 
+ for  (  int  i  =  0  ;  i  <  n  ;  i++  ) { 
+ if  (  !  processes  [  i  ].  isCompleted  && 
+ processes  [  i  ].  arrivalTime  <=  currentTime  && 
+ processes  [  i  ].  priority  <  highestPriority  )  { 
+ highestPriority  =  processes  [  i  ].  priority  ; 
+ minIndex  =  i  ; 
+ } 
+ } 
+ if  (  minIndex  ==  -  1  ) { 
+ currentTime  ++  ; 
+ }  else  { 
+ // Calculate the finish time, turnaround  time, and waiting time 
+ processes  [  minIndex  ].  finishTime  =  currentTime  + 
+ processes  [  minIndex  ].  burstTime  ; 
+ processes  [  minIndex  ].  turnAroundTime  = 
+ processes  [  minIndex  ].  finishTime  - 
+ processes  [  minIndex  ].  arrivalTime  ; 
+ processes  [  minIndex  ].  waitingTime  = 
+ processes  [  minIndex  ].  turnAroundTime  - 
+ processes  [  minIndex  ].  burstTime  ; 
+ processes  [  minIndex  ].  isCompleted  =  true  ; 
+ currentTime  =  processes  [  minIndex  ].  finishTime  ; 
+ completed  ++  ; 
+ } 
+ } 
+ } 
+ // Function for Preemptive Priority Scheduling 
+ void  priorityPreemptive  (  struct  Process  processes  []  ,  int  n  ) 
+ { 
+ int  currentTime  =  0  ,  completed  =  0  ; 
+ while  (  completed  <  n  ) { 
+ int  minIndex  =  -  1  ; 
+ int  highestPriority  =  1e9  ; 
+ // Select the process with the highest priority that has arrived 
+ for  (  int  i  =  0  ;  i  <  n  ;  i  ++  ) { 
+ if  (  processes  [  i  ].  arrivalTime  <=  currentTime  && 
+ !  processes  [  i  ].  isCompleted  && 
+ processes  [  i  ].  priority  <  highestPriority  )  { 
+ highestPriority  =  processes  [  i  ].  priority  ; 
+ minIndex  =  i  ; 
+ } 
+ } 
+ if  (  minIndex  !=  -  1  ) { 
+ // Process one unit of the burst time 
+ processes  [  minIndex  ].  remainingTime  --  ; 
+ currentTime  ++  ; 
+ // If process is completed 
+ if  (  processes  [  minIndex  ].  remainingTime  ==  0  ) { 
+ processes  [  minIndex  ].  finishTime  = 
+ currentTime  ; 
+ processes  [  minIndex  ].  turnAroundTime  = 
+ processes  [  minIndex  ].  finishTime  - 
+ processes  [  minIndex  ].  arrivalTime  ; 
+ processes  [  minIndex  ].  waitingTime  = 
+ processes  [  minIndex  ].  turnAroundTime  - 
+ processes  [  minIndex  ].  burstTime  ; 
+ processes  [  minIndex  ].  isCompleted  =  true  ; 
+ completed  ++  ; 
+ } 
+ }  else  { 
+ currentTime  ++  ; 
+ } 
+ } 
+ } 
+ void  displayResults  (  struct  Process  processes  []  ,  int  n  )
+ { 
+  printf  (  "PID  \t  Arrival  \t  Burst  \t  Priority  \t  Finish  \t  Turnaround  \t  Waiting  \n  "  ); 
+  for  (  int  i  =  0  ;  i  <  n  ;  i  ++  ) 
+  { 
+  printf  (  "  %d  \t  %d  \t  %d  \t  %d  \t\t  %d  \t  %d  \t\t  %d  \n  "  , processes  [  i  ].pid  , processes  [  i  ].arrivalTime  , processes  [  i  ].burstTime  , processes  [  i  ].priority  ,  processes  [  i  ].finishTime  , processes  [  i  ].turnAroundTime  ,  processes  [  i  ].waitingTime  ); 
+   
+  } 
+ float  totalTurnAroundTime  =  0  ,  totalWaitingTime  =  0  ; 
+ for  (  int  i  =  0  ;  i  <  n  ;  i  ++  ) 
+ { 
+ totalTurnAroundTime  +=  processes  [  i  ].  turnAroundTime  ; 
+ totalWaitingTime  +=  processes  [  i  ].  waitingTime  ; 
+ } 
+ printf  (  "Average Turnaround Time:  %.2f  \n  "  , totalTurnAroundTime  /  n  ); 
+ printf  (  "Average Waiting Time:  %.2f  \n  "  ,  totalWaitingTime /  n  ); 
+ } 
+ int  main  () { 
+ int  n  ,  choice  ; 
+ printf  (  "Enter the number of processes: "  ); 
+ scanf  (  "  %d  "  ,  &  n  ); 
+ struct  Process  processes  [  n  ]; 
+ for  (  int  i  =  0  ;  i  <  n  ;  i  ++  ) { 
+ processes  [  i  ].  pid  =  i  +  1  ; 
+ printf  (  "Enter arrival time, burst time, and priority for process  %d  : "  ,  processes  [  i  ].  pid  ); 
+ scanf  (  "  %d  %d  %d  "  ,  &  processes  [  i  ].  arrivalTime  , 
+ &  processes  [  i  ].  burstTime  ,  &  processes  [  i  ].  priority  ); 
+ processes  [  i  ].  remainingTime  = 
+ processes  [  i  ].  burstTime  ; 
+ processes  [  i  ].  isCompleted  =  false  ; 
+ } 
+ printf  (  "Choose Scheduling:  \n  1. Non-Preemptive Priority  \n  2. Preemptive Priority  \n  "  ); 
+ scanf  (  "  %d  "  ,  &  choice  ); 
+ if  (  choice  ==  1  ) { 
+ priorityNonPreemptive  (  processes  ,  n  ); 
+ }  else  if  (  choice  ==  2  ) { 
+ priorityPreemptive  (  processes  ,  n  ); 
+ }  else  { 
+ printf  (  "Invalid choice!  \n  "  ); 
+ return  0  ; 
+ } 
+ displayResults  (  processes  ,  n  ); 
+ return  0  ; 
+ } 
