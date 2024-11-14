@@ -1,179 +1,134 @@
-﻿Non - preem
-
-
-#include <iostream>
-#include <vector>
-#include <algorithm>
-#include <climits>
-
-using namespace std;
-
-struct Process {
-    int pid;             // Process ID
-    int arrivalTime;     // Arrival Time of process
-    int burstTime;       // Burst Time of process
-    int finishTime;      // Finish Time of process
-    int turnaroundTime;  // Turnaround Time of process
-    int waitingTime;     // Waiting Time of process
-    bool completed = false; // Status to mark completion
-};
-
-// Function to calculate times using Non-Preemptive SJF
-void calculateNonPreemptiveSJF(vector<Process>& processes) {
-    int currentTime = 0;
-    int completedProcesses = 0;
-    int n = processes.size();
-
-    while (completedProcesses < n) {
-        int minBurstIndex = -1;
-        int minBurstTime = INT_MAX;
-
-        // Find the process with the shortest burst time among those that have arrived
-        for (int i = 0; i < n; i++) {
-            if (!processes[i].completed && processes[i].arrivalTime <= currentTime && processes[i].burstTime < minBurstTime) {
-                minBurstIndex = i;
-                minBurstTime = processes[i].burstTime;
-            }
-        }
-
-        if (minBurstIndex != -1) {
-            // Update times for the selected process
-            currentTime += processes[minBurstIndex].burstTime;
-            processes[minBurstIndex].finishTime = currentTime;
-            processes[minBurstIndex].turnaroundTime = processes[minBurstIndex].finishTime - processes[minBurstIndex].arrivalTime;
-            processes[minBurstIndex].waitingTime = processes[minBurstIndex].turnaroundTime - processes[minBurstIndex].burstTime;
-            processes[minBurstIndex].completed = true;
-            completedProcesses++;
-        } else {
-            currentTime++;
-        }
-    }
-}
-
-void displayResults(const vector<Process>& processes) {
-    cout << "PID\tArrival\tBurst\tFinish\tTurnaround\tWaiting\n";
-    for (const auto& process : processes) {
-        cout << process.pid << "\t"
-             << process.arrivalTime << "\t"
-             << process.burstTime << "\t"
-             << process.finishTime << "\t"
-             << process.turnaroundTime << "\t\t"
-             << process.waitingTime << endl;
-    }
-}
-
-int main() {
-    // Hardcoded input for processes
-    int n = 4;
-    vector<Process> processes = {
-        {1, 0, 6, 0, 0, 0, false},   // Process 1: Arrival Time = 0, Burst Time = 6
-        {2, 1, 8, 0, 0, 0, false},   // Process 2: Arrival Time = 1, Burst Time = 8
-        {3, 2, 7, 0, 0, 0, false},   // Process 3: Arrival Time = 2, Burst Time = 7
-        {4, 3, 3, 0, 0, 0, false}    // Process 4: Arrival Time = 3, Burst Time = 3
-    };
-
-    // Calculate times for Non-Preemptive SJF
-    calculateNonPreemptiveSJF(processes);
-
-    // Display results
-    cout << "\nNon-Preemptive SJF Results:\n";
-    displayResults(processes);
-
-    return 0;
-}
-
-
-
-
-
-
-
-Prem -
-#include <iostream>
-#include <vector>
-#include <algorithm>
-#include <climits>
-
-using namespace std;
-
-struct Process {
-    int pid;             // Process ID
-    int arrivalTime;     // Arrival Time of process
-    int burstTime;       // Burst Time of process
-    int remainingTime;   // Remaining time for preemptive scheduling
-    int finishTime;      // Finish Time of process
-    int turnaroundTime;  // Turnaround Time of process
-    int waitingTime;     // Waiting Time of process
-};
-
-// Function to display the results
-void displayResults(const vector<Process>& processes) {
-    cout << "PID\tArrival Time\tBurst Time\tFinish Time\tTurnaround Time\tWaiting Time" << endl;
-    for (const auto& process : processes) {
-        cout << process.pid << "\t"
-             << process.arrivalTime << "\t\t"
-             << process.burstTime << "\t\t"
-             << process.finishTime << "\t\t"
-             << process.turnaroundTime << "\t\t"
-             << process.waitingTime << endl;
-    }
-}
-
-// Function to calculate times using Preemptive SJF (SRTF)
-void calculatePreemptiveSJF(vector<Process>& processes) {
-    int currentTime = 0;
-    int completedProcesses = 0;
-    int n = processes.size();
-
-    for (auto& process : processes) {
-        process.remainingTime = process.burstTime;
-    }
-
-    while (completedProcesses < n) {
-        int minRemainingIndex = -1;
-        int minRemainingTime = INT_MAX;
-
-        // Find the process with the shortest remaining time among those that have arrived
-        for (int i = 0; i < n; i++) {
-            if (processes[i].arrivalTime <= currentTime && processes[i].remainingTime > 0 && processes[i].remainingTime < minRemainingTime) {
-                minRemainingIndex = i;
-                minRemainingTime = processes[i].remainingTime;
-            }
-        }
-
-        if (minRemainingIndex != -1) {
-            processes[minRemainingIndex].remainingTime--;
-            currentTime++;
-
-            // If process is completed
-            if (processes[minRemainingIndex].remainingTime == 0) {
-                processes[minRemainingIndex].finishTime = currentTime;
-                processes[minRemainingIndex].turnaroundTime = processes[minRemainingIndex].finishTime - processes[minRemainingIndex].arrivalTime;
-                processes[minRemainingIndex].waitingTime = processes[minRemainingIndex].turnaroundTime - processes[minRemainingIndex].burstTime;
-                completedProcesses++;
-            }
-        } else {
-            currentTime++;
-        }
-    }
-}
-
-int main() {
-    // Hardcoded input for processes
-    int n = 4;
-    vector<Process> processes = {
-        {1, 0, 8, 0, 0, 0, 0},   // Process 1: Arrival Time = 0, Burst Time = 8
-        {2, 1, 4, 0, 0, 0, 0},   // Process 2: Arrival Time = 1, Burst Time = 4
-        {3, 2, 9, 0, 0, 0, 0},   // Process 3: Arrival Time = 2, Burst Time = 9
-        {4, 3, 5, 0, 0, 0, 0}    // Process 4: Arrival Time = 3, Burst Time = 5
-    };
-
-    // Calculate times for Preemptive SJF
-    calculatePreemptiveSJF(processes);
-
-    // Display results
-    cout << "\nPreemptive SJF Results:\n";
-    displayResults(processes);
-
-    return 0;
-}
+#include  <stdio.h> 
+ #include  <stdbool.h> 
+ struct  Process  { 
+ int  pid  ;  // Process ID 
+ int  arrivalTime  ; 
+ int  burstTime  ; 
+ int  remainingTime  ;  // For preemptive SJF 
+ int  finishTime  ; 
+ int  turnAroundTime  ; 
+ int  waitingTime  ; 
+ bool  isCompleted  ; 
+ }; 
+ // Function for Non-Preemptive SJF 
+ void  sjfNonPreemptive  (  struct  Process  processes  []  ,  int  n  ) { 
+ int  currentTime  =  0  ,  completed  =  0  ; 
+ while  (  completed  <  n  ) { 
+ int  minIndex  =  -  1  ; 
+ int  minBurstTime  =  1e9  ; 
+ // Select the process with the smallest burst  time that has arrived 
+ for  (  int  i  =  0  ;  i  <  n  ;  i  ++  ) { 
+ if  (  !  processes  [  i  ].  isCompleted  && 
+ processes  [  i  ].  arrivalTime  <=  currentTime  && 
+ processes  [  i  ].  burstTime  <  minBurstTime  )  { 
+ minBurstTime  =  processes  [  i  ].  burstTime  ; 
+ minIndex  =  i  ; 
+ } 
+ } 
+ if  (  minIndex  ==  -  1  ) { 
+ currentTime  ++  ; 
+ }  else  { 
+ // Calculate the finish time, turnaround  time, and waiting time 
+ processes  [  minIndex  ].  finishTime  =  currentTime  + 
+ processes  [  minIndex  ].  burstTime  ; 
+ processes  [  minIndex  ].  turnAroundTime  = 
+ processes  [  minIndex  ].  finishTime  - 
+ processes  [  minIndex  ].  arrivalTime  ; 
+ processes  [  minIndex  ].  waitingTime  = 
+ processes  [  minIndex  ].  turnAroundTime  - 
+ processes  [  minIndex  ].  burstTime  ; 
+ processes  [  minIndex  ].  isCompleted  =  true  ; 
+ currentTime  =  processes  [  minIndex  ].  finishTime  ; 
+ completed  ++  ; 
+ } 
+ } 
+ } 
+ // Function for Preemptive SJF 
+ void  sjfPreemptive  (  struct  Process  processes  []  ,  int  n  ) { 
+ int  currentTime  =  0  ,  completed  =  0  ; 
+ int  minIndex  =  -  1  ; 
+ int  minRemainingTime  =  1e9  ; 
+ while  (  completed  <  n  ) { 
+ minIndex  =  -  1  ; 
+ minRemainingTime  =  1e9  ; 
+ // Select the process with the smallest remaining  time that has arrived 
+ for  (  int  i  =  0  ;  i  <  n  ;  i  ++  ) { 
+ if  (  processes  [  i  ].  arrivalTime  <=  currentTime  && 
+ !  processes  [  i  ].  isCompleted  && 
+ processes  [  i  ].  remainingTime  < 
+ minRemainingTime  ) { 
+ minRemainingTime  = 
+ processes  [  i  ].  remainingTime  ; 
+ minIndex  =  i  ; 
+ } 
+ } 
+ if  (  minIndex  !=  -  1  ) { 
+ processes  [  minIndex  ].  remainingTime  --  ; 
+ currentTime  ++  ; 
+ // If process is completed 
+ if  (  processes  [  minIndex  ].  remainingTime  ==  0  ) { 
+ processes  [  minIndex  ].  finishTime  = 
+ currentTime  ; 
+ processes  [  minIndex  ].  turnAroundTime  = 
+ processes  [  minIndex  ].  finishTime  - 
+ processes  [  minIndex  ].  arrivalTime  ; 
+ processes  [  minIndex  ].  waitingTime  = 
+ processes  [  minIndex  ].  turnAroundTime  - 
+ processes  [  minIndex  ].  burstTime  ; 
+ processes  [  minIndex  ].  isCompleted  =  true  ; 
+ completed  ++  ; 
+ } 
+ }  else  { 
+ currentTime  ++  ; 
+ } 
+ } 
+ } 
+ void  displayResults  (  struct  Process  processes  []  ,  int  n  ) { 
+ printf  (  "PID  \t  Arrival  \t  Burst  \t  Finish  \t  Turnaround  \t  Waiting  \n  " 
+ ); 
+ for  (  int  i  =  0  ;  i  <  n  ;  i  ++  ) { 
+ printf  (  "  %d  \t  %d  \t  %d  \t  %d  \t  %d  \t\t  %d  \n  "  , 
+ processes  [  i  ].  pid  , 
+ processes  [  i  ].  arrivalTime  , 
+ processes  [  i  ].  burstTime  , 
+ processes  [  i  ].  finishTime  , 
+ processes  [  i  ].  turnAroundTime  , 
+ processes  [  i  ].  waitingTime  ); 
+ } 
+ float  totalTurnAroundTime  =  0  ,  totalWaitingTime  =  0  ; 
+ for  (  int  i  =  0  ;  i  <  n  ;  i  ++  ) { 
+ totalTurnAroundTime  +=  processes  [  i  ].  turnAroundTime  ; 
+ totalWaitingTime  +=  processes  [  i  ].  waitingTime  ; 
+ } 
+ printf  (  "Average Turnaround Time:  %.2f  \n  "  , 
+ totalTurnAroundTime  /  n  ); 
+ printf  (  "Average Waiting Time:  %.2f  \n  "  ,  totalWaitingTime 
+ /  n  ); 
+ } 
+ int  main  () { 
+ int  n  ,  choice  ; 
+ printf  (  "Enter the number of processes: "  ); 
+ scanf  (  "  %d  "  ,  &  n  ); 
+ struct  Process  processes  [  n  ]; 
+ for  (  int  i  =  0  ;  i  <  n  ;  i  ++  ) { 
+ processes  [  i  ].  pid  =  i  +  1  ; 
+ printf  (  "Enter arrival time and burst time  for process  %d  : "  ,  processes  [  i  ].  pid  ); 
+ scanf  (  "  %d  %d  "  ,  &  processes  [  i  ].  arrivalTime  , 
+ &  processes  [  i  ].  burstTime  ); 
+ processes  [  i  ].  remainingTime  = 
+ processes  [  i  ].  burstTime  ; 
+ processes  [  i  ].  isCompleted  =  false  ; 
+ } 
+ printf  (  "Choose Scheduling:  \n  1. Non-Preemptive SJF  \n  2. Preemptive SJF  \n  "  ); 
+ scanf  (  "  %d  "  ,  &  choice  ); 
+ if  (  choice  ==  1  ) { 
+ sjfNonPreemptive  (  processes  ,  n  ); 
+ }  else  if  (  choice  ==  2  ) { 
+ sjfPreemptive  (  processes  ,  n  ); 
+ }  else  { 
+ printf  (  "Invalid choice!  \n  "  ); 
+ return  0  ; 
+ } 
+ displayResults  (  processes  ,  n  ); 
+ return  0  ; 
+ } 
