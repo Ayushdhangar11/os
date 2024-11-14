@@ -1,0 +1,57 @@
+apropos keyword
+man –k keyword
+“searches a set of database files containing short descriptions of system commands for keywords”.                Listing files (ls)
+• It shows the files /directories in your current directory. • OPTIONS:
+-l Lists all the files, directories and their mode, Number of links, owner of the file, file size, Modified date and time and filename.
+-t Lists in order of last modification time.
+-a Lists all entries including hidden files.
+-d Lists directory files instead of contents. -p Puts slash at the end of each directories. -u List in order of last access time.
+-i Display inode information.
+-ltr List files order by date.
+-lSr List files order by file size.                    date: To display current date & time of the system.
+2. cal :To display calendar of current month.
+3. who:List who is currently logged on to the system.
+4. Whoami:Report what user you are logged on as.
+5. echo :Echo a string (or list of arguments) to the terminal 6. bc:To perform mathematical operations
+7. clear:To clear the screen
+8. alias : Used to tailor commands
+Ex alias erase=rm Generate an employee report using AWK programming.
+alias grep=”grep -i” alias cp=“cp –i”
+9. man <cmd name>: To get help for any command 10. passwd: To change the passward
+11. exit: To logout from the terminal.                       cp <fromfile> <tofile>: Copy from the <fromfile> to the <tofile>
+2. mv <fromfile> <tofile> : Move/rename the <fromfile> to the <tofile>
+3. rm <file>:Remove the file named <file>
+4. mkdir <newdir>:Make a new directory called <newdir>
+5. rmdir <dir>:Remove an (empty) directory
+6. cd <dir> :Change the current working directory to dir
+7. pwd : Print (display) the working directory
+8. cat > <file> :To create new file and save it by pressing ^d 9. cat >> <file>: To append contents into existing file
+10. cat <file>:To see the contents of existing file
+11. more <file>:Paging out the contents of file                  12. file <file>:To check the type of file
+13. wc <file>:To count lines,words,charaters of file
+14. cmp <file1> <file2>:To compare two files
+15. comm <file1> <file2>:To display common values between two files
+16. diff <file1> <file2>:To convert one file to another
+17. gzip <file>:To compress the file
+18. gunzip <file>:To unzip the contents of zipped file
+19. ls :List the files in the current working directory
+20. ls <dir>:List all files & directories in given directory 21. ln <fromfile><tofile>: Creates a symbolic link to a file       1. pr <file> :Paginating the file Ex: pr –h “test” –d –n fname
+2. head <file>:Display first 10 lines of file Ex: head –n -3 fname
+3. tail <file> :To display last 10 lines of file Ex: tail -3 fname ; tail –c 100 fname
+4. cut <file> :Splitting file vertically Ex: cut –c 2-10,12-14 fname
+cut –d “|” –f 2,4 fname
+5. paste <file1> <file2> :To combine two file vertically rather than horizontally
+Ex: paste –d “|” fname1 fname2
+6. sort <file>:To sort file in order by field wise
+Ex: sort –t”|” –k 2 fname sort –r fname.       7. uniq <file> :Locate repeated & nonrepeated lines Ex: uniq fname; uniq –d fname
+8. tr ch1 ch2 < <file1>:To translate occurrence of ch1 by ch2 Ex: tr ‘|’ ‘+’ < fname1
+9. tee: read from standard input and write to standard output and files
+Ex: ls *.txt | wc -l | tee count.txt.         Searching and pattern matching tools
+Searches files for one or more pattern arguments. It does plain string, basic regular expression, and extended regular expression searching
+Following are some of the options for grep -i ignore case for matching
+-v doesn’t display lines matching expression -n display line numbers along of occurrences -c counting number of occurrences
+-l display list of file names
+-e exp for matching
+-f file take patterns from file
+-E treat pattern as an extended reg. exp -F matches multiple fixed strings (fgrep).    grep -ow "yourstring“
+grep -w "search_word" text_file grep -P '^(tomcat!?)' tst1.txt.
