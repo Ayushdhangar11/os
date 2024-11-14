@@ -86,3 +86,83 @@
  displayResults  (  processes  ,  n  ); 
  return  0  ; 
  }
+
+### Explanation of the Code
+
+This code implements the **Round Robin (RR)** scheduling algorithm, a preemptive process scheduling technique used in operating systems. It manages the execution of processes by allocating each process a fixed amount of CPU time (called the **time quantum**), after which the process is preempted and the next process gets a turn. This is repeated until all processes have finished executing.
+
+### Key Concepts in Operating Systems (OS)
+
+1. **Round Robin Scheduling**:
+   - **Round Robin (RR)** is one of the simplest and most widely used CPU scheduling algorithms in preemptive scheduling systems.
+   - In RR, each process is assigned a fixed time slice or time quantum. If a process doesn’t finish within its time quantum, it is placed back into the ready queue to await the next turn.
+   - **Preemptive Scheduling**: This algorithm is preemptive because a running process can be interrupted if its time quantum expires, allowing the CPU to switch to another process.
+
+2. **Time Quantum**:
+   - The **time quantum** (also known as **time slice**) is the fixed time interval that a process is allowed to run before being interrupted.
+   - If the process finishes before the quantum expires, it is removed from the CPU and the next process is scheduled.
+
+3. **Context Switching**:
+   - Context switching happens in Round Robin scheduling when a process is interrupted and replaced with another process after its time quantum expires. This allows the system to manage multiple processes concurrently.
+
+4. **Turnaround Time**:
+   - **Turnaround time** is the total time taken for a process to complete execution, from its arrival in the ready queue to its completion.
+   - **Turnaround Time** = **Finish Time** - **Arrival Time**
+
+5. **Waiting Time**:
+   - **Waiting Time** is the time a process spends in the ready queue before it gets executed.
+   - **Waiting Time** = **Turnaround Time** - **Burst Time**
+
+### Code Structure
+
+1. **Process Structure**:
+   - `pid`: Process ID. Each process has a unique ID.
+   - `arrivalTime`: The time when the process arrives in the system.
+   - `burstTime`: The total CPU time the process requires to complete its execution.
+   - `remainingTime`: The remaining time required for the process to complete. This is initially set to the `burstTime` and is updated as the process is executed.
+   - `finishTime`: The time when the process finishes execution.
+   - `turnAroundTime`: The total time the process spent in the system from arrival to completion.
+   - `waitingTime`: The total time the process spent waiting in the ready queue (not executing).
+
+2. **Round Robin Scheduling Function (`roundRobin`)**:
+   - **Initialization**: The variables `currentTime` and `completed` are used to keep track of the current time in the system and the number of processes that have completed their execution.
+   - **Main Loop**:
+     - The loop runs until all processes are completed.
+     - Inside the loop, for each process that has arrived (its `arrivalTime <= currentTime`) and still has remaining burst time (`remainingTime > 0`), the algorithm checks:
+       - If the process's remaining time is less than or equal to the time quantum, the process is allowed to complete and its `finishTime`, `turnAroundTime`, and `waitingTime` are calculated.
+       - If the remaining time is more than the time quantum, the process runs for a full quantum, and the `remainingTime` is reduced by the time quantum.
+     - If no processes are left to execute (i.e., all processes are finished), the `currentTime` is incremented to simulate idle time.
+   - **Process Completion**: A process is considered completed when its remaining burst time reaches zero. When this happens, the algorithm increments the `completed` count and updates the relevant timing metrics for that process.
+
+3. **Display Results (`displayResults`)**:
+   - This function prints the details of each process (such as PID, arrival time, burst time, finish time, turnaround time, and waiting time) in a tabular format.
+   - It also computes and prints the **average turnaround time** and **average waiting time** across all processes. These metrics are useful for evaluating the efficiency of the scheduling algorithm.
+
+4. **Main Function**:
+   - The `main` function starts by taking the number of processes and the time quantum as input from the user.
+   - It then prompts the user for the arrival time and burst time of each process and initializes the `remainingTime` for each process to be the same as the burst time.
+   - After gathering the necessary input, the **Round Robin scheduling** function is called, followed by the **displayResults** function to show the output.
+
+### OS Theory Related to Round Robin Scheduling
+
+1. **Preemptive Scheduling**:
+   - Round Robin is a **preemptive** scheduling algorithm, meaning that processes are given a fixed time slice (quantum) during which they are allowed to execute. If a process doesn't complete within the time slice, it is preempted, and the CPU is assigned to the next process in the queue.
+   - This contrasts with **non-preemptive** scheduling, where a process runs to completion once it starts.
+
+2. **Fairness**:
+   - One of the key benefits of Round Robin is its fairness. Every process gets a fair share of CPU time, especially in systems where no single process is more important than others.
+   - It ensures that no process can monopolize the CPU indefinitely, which is crucial in multi-user or multitasking environments.
+
+3. **Time Quantum Selection**:
+   - The time quantum is a critical parameter in the Round Robin scheduling algorithm. If the quantum is too large, it may behave like **First-Come, First-Served (FCFS)** scheduling, leading to poor responsiveness.
+   - If the quantum is too small, the system will spend too much time on context switching, which increases the overhead.
+
+4. **Context Switching Overhead**:
+   - Context switching, though necessary, introduces overhead. It involves saving the state of the currently running process and loading the state of the next process. Too frequent context switches due to small time quanta can reduce the overall system performance.
+
+5. **Efficiency Considerations**:
+   - While Round Robin is simple and fair, its performance can vary based on the time quantum and the nature of the processes. It works well when processes are roughly equal in terms of burst times, but can be inefficient if there is significant variation in burst times (e.g., a process with a very large burst time may have to wait unnecessarily).
+
+### Conclusion
+
+The code simulates the **Round Robin** scheduling algorithm, allowing processes to execute in turns with a fixed time quantum. It calculates essential metrics like **turnaround time** and **waiting time** to evaluate the performance of the scheduling strategy. The algorithm's simplicity and fairness make it a popular choice in time-sharing systems, but its efficiency depends on the proper selection of the time quantum. The code's use of preemptive scheduling reflects how an OS manages CPU allocation to processes in a multitasking environment.
