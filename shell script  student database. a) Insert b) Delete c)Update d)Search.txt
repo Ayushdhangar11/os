@@ -1,0 +1,208 @@
+﻿23.⁠ ⁠Write a shell script to perform following operations on   student database.
+a) Insert b) Delete c)Update d)Search
+
+
+#!/bin/bash
+
+
+# Student database file
+DB_FILE="student_database.txt"
+
+
+# Menu options
+function show_menu() {
+    echo "Student Database Operations:"
+    echo "1. Insert a new student"
+    echo "2. Delete a student"
+    echo "3. Update a student's information"
+    echo "4. Search for a student"
+    echo "5. Exit"
+    echo -n "Enter your choice (1-5): "
+}
+
+
+# Insert a new student
+function insert_student() {
+    echo -n "Enter student name: "
+    read name
+    echo -n "Enter student ID: "
+    read id
+    echo -n "Enter student grade: "
+    read grade
+    echo "$name,$id,$grade" >> "$DB_FILE"
+    echo "Student added successfully!"
+}
+
+
+# Delete a student
+function delete_student() {
+    echo -n "Enter student ID to delete: "
+    read delete_id
+    student_info=$(grep ",$delete_id," "$DB_FILE")
+    if [ -z "$student_info" ]; then
+        echo "Student not found."
+        return
+    fi
+    sed -i "/$student_info/d" "$DB_FILE"
+    echo "Student deleted successfully!"
+}
+
+
+# Update a student's information
+function update_student() {
+    echo -n "Enter student ID to update: "
+    read update_id
+    student_info=$(grep ",$update_id," "$DB_FILE")
+    if [ -z "$student_info" ]; then
+        echo "Student not found."
+        return
+    fi
+    IFS=',' read -ra student_data <<< "$student_info"
+    echo "Current information:"
+    echo "Name: ${student_data[0]}"
+    echo "ID: ${student_data[1]}"
+    echo "Grade: ${student_data[2]}"
+    echo -n "Enter new name: "
+    read new_name
+    echo -n "Enter new ID: "
+    read new_id
+    echo -n "Enter new grade: "
+    read new_grade
+    sed -i "s/$student_info/$new_name,$new_id,$new_grade/" "$DB_FILE"
+    echo "Student information updated successfully!"
+}
+
+
+# Search for a student
+function search_student() {
+    echo -n "Enter student ID to search: "
+    read search_id
+    student_info=$(grep ",$search_id," "$DB_FILE")
+    if [ -z "$student_info" ]; then
+        echo "Student not found."
+    else
+        IFS=',' read -ra student_data <<< "$student_info"
+        echo "Name: ${student_data[0]}"
+        echo "ID: ${student_data[1]}"
+        echo "Grade: ${student_data[2]}"
+    fi
+}
+
+
+# Main loop
+while true; do
+    show_menu
+    read choice
+    case $choice in
+        1) insert_student ;;
+        2) delete_student ;;
+        3) update_student ;;
+        4) search_student ;;
+        5) echo "Exiting..." && break ;;
+        *) echo "Invalid choice. Try again." ;;
+    esac
+    echo
+done
+
+### Explanation of the Shell Script
+
+This shell script is designed to perform **CRUD operations (Create, Read, Update, Delete)** on a student database stored in a text file (`student_database.txt`). The script allows the user to insert, delete, update, and search for student records. Here’s a breakdown of how each part of the script works:
+
+### Structure of the Script
+
+The script is structured into functions, each of which handles a specific database operation, and a main loop that controls user input.
+
+1. **Student Database File**:
+   - The student records are stored in the file `student_database.txt`.
+   - Each record consists of three fields: `name`, `id`, and `grade`, separated by commas (CSV format).
+   - The database file is expected to contain multiple lines, each representing one student's information in the format `name,id,grade`.
+
+2. **Menu Options**:
+   The script provides a menu to the user with five choices:
+   - Insert a new student (Choice 1)
+   - Delete a student (Choice 2)
+   - Update a student's information (Choice 3)
+   - Search for a student (Choice 4)
+   - Exit the program (Choice 5)
+
+### Functions in the Script
+
+#### `show_menu`
+- This function displays the main menu to the user, prompting them to choose an option between 1 and 5. It then waits for user input (`read choice`) to decide which operation to execute.
+
+#### `insert_student`
+- Prompts the user for the student’s `name`, `id`, and `grade`.
+- Appends the new student information to the `student_database.txt` file in the format `name,id,grade`.
+- Displays a success message once the student is added.
+
+#### `delete_student`
+- Asks the user for the `id` of the student they wish to delete.
+- Uses `grep` to search for the student with the provided `id` in the database file.
+- If the student is found, `sed -i` is used to delete the record from the file. The `sed` command removes the matching line from the file.
+- Displays a success message if the student is deleted or an error message if the student is not found.
+
+#### `update_student`
+- Prompts the user to enter the `id` of the student whose information they wish to update.
+- Uses `grep` to find the record with the given `id`.
+- If the student is found, the script displays the current information (name, id, and grade).
+- Then, it asks the user to enter the new values for `name`, `id`, and `grade`.
+- The `sed -i` command is used to replace the old student record with the new one in the file.
+- Displays a success message after updating or an error message if the student is not found.
+
+#### `search_student`
+- Asks the user for the `id` of the student they wish to search for.
+- Uses `grep` to find the student record in the database.
+- If the student is found, it displays their `name`, `id`, and `grade`. If not, it shows an error message stating that the student was not found.
+
+### Main Loop
+
+The main loop continuously shows the menu and processes the user’s choice. It works as follows:
+
+- The `while true` loop keeps the program running until the user chooses to exit.
+- The user’s choice (`read choice`) is compared using a `case` statement:
+  - If the user selects `1`, the `insert_student` function is called.
+  - If the user selects `2`, the `delete_student` function is called.
+  - If the user selects `3`, the `update_student` function is called.
+  - If the user selects `4`, the `search_student` function is called.
+  - If the user selects `5`, the program exits with a message "Exiting...".
+  - If the user enters an invalid choice, the script displays "Invalid choice. Try again."
+
+The program repeats this process, allowing the user to perform multiple operations until they choose to exit.
+
+### Key Commands and Concepts in the Script
+
+1. **`echo` and `read`**:
+   - `echo` is used to display messages to the user.
+   - `read` is used to capture user input.
+
+2. **`grep`**:
+   - `grep` searches through the database file to find records that match the provided student `id`. It’s used to check if a student exists in the file.
+
+3. **`sed`**:
+   - `sed` is a stream editor used here to modify the database file.
+     - `sed -i` is used to **delete** a line (`/pattern/d`) or **replace** a pattern (`s/old/new/`).
+
+4. **CSV Format**:
+   - The script assumes that the student database is in CSV format (`name,id,grade`). Each operation modifies or accesses this format.
+
+### Error Handling
+
+- The script includes basic error handling:
+  - **Insertion**: If a student is successfully added, the script confirms with a success message.
+  - **Deletion**: If a student is not found by their `id`, the script shows an error message.
+  - **Update**: Similar to deletion, if the student is not found, an error message is displayed.
+  - **Search**: If the student is not found, the script informs the user.
+  
+  However, the script does not handle edge cases like invalid input types (e.g., entering letters instead of numbers for IDs or grades). These can be added for more robust error handling.
+
+### Operating System Concepts
+
+- **File I/O**: The script performs file I/O operations using `echo`, `grep`, and `sed`, which are basic shell commands for interacting with files. The `DB_FILE` represents a simple text file used as a database.
+  
+- **Text Processing**: The script relies on text processing commands such as `grep` (searching) and `sed` (editing). These are common in Unix-like operating systems for managing and manipulating files.
+
+- **Process Control**: The script runs as a continuous loop (`while true`) until the user explicitly exits. This is a basic form of process control, where the flow of execution depends on user input.
+
+### Conclusion
+
+This shell script simulates basic operations on a student database using a text file. It demonstrates how to perform **CRUD operations** through shell scripting by leveraging text processing utilities available in Unix-like operating systems, such as `echo`, `read`, `grep`, and `sed`. The script is simple but demonstrates how shell scripts can be used to interact with databases in a basic form.
