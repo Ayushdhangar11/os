@@ -126,3 +126,109 @@
  displayResults  (  processes  ,  n  ); 
  return  0  ; 
  } 
+
+### Explanation of the Code
+
+The code implements two types of **Priority Scheduling** algorithms: **Non-Preemptive** and **Preemptive** Priority Scheduling, used in operating systems for process scheduling. Below is a breakdown of each part of the code and its relation to **Operating Systems** concepts.
+
+### Key Concepts in Operating Systems (OS)
+
+**1. Process Scheduling**:
+- In OS, **scheduling** refers to the way processes are assigned to the CPU for execution. The scheduler decides which process should run at a given time based on certain algorithms.
+  
+**2. Priority Scheduling**:
+- **Priority Scheduling** assigns a priority level to each process. The process with the highest priority (lowest priority number) is selected for execution first.
+  - **Preemptive Priority Scheduling**: If a new process arrives with a higher priority, it can preempt the currently running process.
+  - **Non-Preemptive Priority Scheduling**: Once a process starts executing, it runs to completion regardless of whether a new process with a higher priority arrives.
+
+### Process Structure
+
+The `struct Process` is used to represent each process. The structure contains:
+- `pid`: Process ID, unique identifier for each process.
+- `arrivalTime`: The time when the process arrives in the system.
+- `burstTime`: The CPU time the process requires to complete its task.
+- `remainingTime`: For preemptive scheduling, it tracks how much CPU time is left for the process.
+- `priority`: The priority level of the process; lower numbers indicate higher priority.
+- `finishTime`: The time at which the process finishes executing.
+- `turnAroundTime`: The total time the process has spent in the system (Finish Time - Arrival Time).
+- `waitingTime`: The time the process spent waiting in the ready queue (Turnaround Time - Burst Time).
+- `isCompleted`: A flag to track whether the process has completed its execution.
+
+### Function Breakdown
+
+#### 1. **Non-Preemptive Priority Scheduling (Function `priorityNonPreemptive`)**
+
+- **Initialization**: 
+  - `currentTime`: Keeps track of the current time in the system, starting from 0.
+  - `completed`: Keeps count of how many processes have been completed.
+
+- **Main Loop**: 
+  - The algorithm runs in a loop until all processes are completed.
+  - For each process, it checks if the process has arrived (i.e., `arrivalTime <= currentTime`).
+  - Among all processes that have arrived and are not yet completed, the process with the **highest priority** (smallest `priority` value) is selected for execution.
+
+- **Process Execution**:
+  - Once the process with the highest priority is selected, it executes to completion. 
+  - The **finish time** is calculated as the sum of the `currentTime` and the `burstTime`.
+  - The **turnaround time** and **waiting time** are also calculated:
+    - Turnaround Time = Finish Time - Arrival Time.
+    - Waiting Time = Turnaround Time - Burst Time.
+  - The process is marked as completed (`isCompleted = true`), and `currentTime` is updated to the `finishTime`.
+
+- **Idle Time**: 
+  - If no process is available (none has arrived or all completed), the `currentTime` is incremented by 1, simulating idle time until the next process arrives.
+
+#### 2. **Preemptive Priority Scheduling (Function `priorityPreemptive`)**
+
+- **Initialization**:
+  - Similar to the non-preemptive version, the `currentTime` is initialized to 0, and `completed` keeps track of the number of completed processes.
+
+- **Main Loop**:
+  - In each cycle, the algorithm checks for the process with the highest priority that has already arrived.
+  - If such a process is found, one unit of time is allocated to it, reducing its remaining burst time by 1 (`remainingTime--`).
+  - If a process’s `remainingTime` becomes zero, it is marked as completed, and the corresponding `finishTime`, `turnAroundTime`, and `waitingTime` are calculated, just like in the non-preemptive version.
+
+- **Preemption**:
+  - This is where the preemptive nature comes in: if another process arrives with a higher priority (lower `priority` value) before the current one finishes, it will be selected for execution, and the previously running process may resume execution later.
+  - If no process is ready to execute, the `currentTime` is incremented by 1.
+
+#### 3. **Display Results (Function `displayResults`)**
+
+Once all processes are completed, the `displayResults` function prints the following for each process:
+- **PID**: Process ID.
+- **Arrival Time**: The time the process arrived in the system.
+- **Burst Time**: The CPU time required by the process.
+- **Priority**: The priority of the process.
+- **Finish Time**: The time the process completed its execution.
+- **Turnaround Time**: The total time the process was in the system.
+- **Waiting Time**: The time the process spent waiting in the ready queue.
+
+Additionally, it calculates the **average turnaround time** and **average waiting time** across all processes and prints them.
+
+#### 4. **Main Function**
+
+The `main` function serves as the entry point:
+- It first asks for the number of processes `n` and takes the input for each process’s `arrivalTime`, `burstTime`, and `priority`.
+- It then prompts the user to select either **Non-Preemptive Priority Scheduling** (option 1) or **Preemptive Priority Scheduling** (option 2).
+- Based on the user’s choice, the respective scheduling function is called (`priorityNonPreemptive` or `priorityPreemptive`).
+- Finally, the results are displayed by calling `displayResults`.
+
+---
+
+### Key OS Concepts Related to This Code
+
+1. **Process Scheduling Algorithms**:
+   - This code implements the **Priority Scheduling** algorithm, which is a preemptive or non-preemptive scheduling algorithm. It is useful in systems where processes have different levels of importance (priority), and those with higher priority should be executed first.
+
+2. **Preemptive vs Non-Preemptive Scheduling**:
+   - **Non-Preemptive Scheduling**: Once a process starts executing, it runs to completion without being interrupted, even if a higher-priority process arrives.
+   - **Preemptive Scheduling**: A running process can be interrupted (preempted) if a higher-priority process arrives.
+
+3. **Turnaround Time and Waiting Time**:
+   - **Turnaround Time** is the total time taken from process arrival to completion. 
+   - **Waiting Time** is the time a process spends waiting in the ready queue (Turnaround Time - Burst Time).
+
+4. **CPU Scheduling**:
+   - The main objective of CPU scheduling is to ensure that the CPU is utilized efficiently and that processes are executed in a fair and timely manner. Priority Scheduling helps achieve this by giving precedence to critical tasks.
+
+In summary, this code simulates priority-based process scheduling for an operating system, with both preemptive and non-preemptive versions, and calculates relevant performance metrics (waiting time and turnaround time) for each process.
